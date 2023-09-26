@@ -1,0 +1,17 @@
+| Command          | Syntax                             | Description                                         |
+| ---------------- | ---------------------------------- | --------------------------------------------------- |
+| `print`          | `print <expression>`               | Evaluate and print the value of an expression.      |
+| `info locals`    | `info locals`                      | List local variables of the current function.       |
+| `info args`      | `info args`                        | List arguments of the current function.             |
+| `info registers` | `info registers`                   | Show the content of all CPU registers.              |
+| `info frame`     | `info frame`                       | Info about the current stack frame.                 |
+| `whatis`         | `whatis <expression>`              | Display the type of an expression.                  |
+| `ptype`          | `ptype <expression>`               | Show the type definition of an expression.          |
+| `x`              | `x/<n/f/u> <address>`              | Examine memory at a particular address.             |
+| `set`            | `set <var>=<value>`                | Set a variable or register to a particular value.   |
+| `watch`          | `watch <expression>`               | Watch for changes to a variable or expression.      |
+| `display`        | `display <expression>`             | Display the value of an expression at each stop.    |
+| `undisplay`      | `undisplay <display#>`             | Remove an expression from the auto-display list.    |
+| `info display`   | `info display`                     | Show the list of auto-display expressions.          |
+| `info breakpoints` | `info breakpoints`               | List all set breakpoints, watchpoints, or catchpoints. |
+| `info program`   | `info program`                     | Information about the status of the program being debugged. |
