@@ -1,16 +1,47 @@
 #include "Arduino.h"
 #include "avr8-stub.h"
 #include "app_api.h" // only needed with flash breakpoints
+#include "output.h"
+#include "division.h"
+#include "clock_manager.h"
+
+
 void setup() {
- pinMode(LED_BUILTIN, OUTPUT);
  // initialize the avr-debugger
- debug_init();
+    debug_init();
+    pinMode(8, OUTPUT);
+    pinMode(9, OUTPUT);
+    pinMode(10, OUTPUT);
+    pinMode(11, OUTPUT);
 }
 
+/*
+ *          TESTS
+ */
+
+bool expectEqual(int a, int b) {
+    if(a != b) {
+        return false;
+    }
+    return a == b;
+}
+
+void resetOutputPins() {
+    digitalWrite(8, LOW);
+    digitalWrite(9, LOW);
+    digitalWrite(10, LOW);
+    digitalWrite(11, LOW);
+}
+
+
+
 void loop() {
-  int test = 4;
- digitalWrite(LED_BUILTIN, HIGH);
- delay(300);
- digitalWrite(LED_BUILTIN, LOW);
- delay(100);
+
+//    testRun_Output_writeOutputs();
+//    testRun_Output_toggleOutput();
+//    testRun_Division_tick1();
+//    testRun_Division_tick2();
+//    testRun_Division_tick3();
+//    test_ClockManager_update();
+
 }
