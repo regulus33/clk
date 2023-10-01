@@ -8,7 +8,7 @@
 // Created by zack on 9/15/23.
 //
 const int maxDivision = 8;
-const char* divisions[] = {
+const char *divisions[] = {
         "1",
         "2",
         "3",
@@ -18,14 +18,14 @@ const char* divisions[] = {
         "7",
         "8",
 };
-const int divs[8] = {1,2,3,4,5,6,7,8};
+const int divs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
 struct Division {
     int counter = 1;
     int divIndex = 0;
 
 public:
-    const char* incrementDiv() {
+    const char *incrementDiv() {
         divIndex = (divIndex + 1) % maxDivision;
         return divisions[divIndex];
     }
@@ -47,8 +47,13 @@ public:
         return tick;
     }
 
+    void advance() {
+        counter = (counter % 8) + 1;
+    }
+
     void resetState() {
         counter = 0;
     }
 };
+
 #endif //CLK_DIVISION_H

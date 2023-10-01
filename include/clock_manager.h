@@ -4,9 +4,9 @@
 
 #ifndef CLK_CLOCK_MANAGER_H
 #define CLK_CLOCK_MANAGER_H
+
 struct ClockManager {
 public:
-    Output output;
     Division division1;
     Division division2;
     Division division3;
@@ -28,24 +28,13 @@ public:
         division4.incrementDiv();
     }
 
-    // this needs to run over and over again in loop to keep the state updated
-    void updateState() {
-        if(division1.willTick()) {
-            output.toggleBit0();
-        };
-        if(division2.willTick()) {
-            output.toggleBit1();
-        }
-        if(division3.willTick()) {
-            output.toggleBit2();
-        }
-        if(division3.willTick()) {
-            output.toggleBit3();
-        }
-    }
-
     void tick() {
-
+        PORTB = 0x00;
+        division1.tick() ? PORTB ^= (1 << PORTB0) : 0;
+        division2.tick() ? PORTB ^= (1 << PORTB1) : 0;
+        division3.tick() ? PORTB ^= (1 << PORTB2) : 0;
+        division4.tick() ? PORTB ^= (1 << PORTB3) : 0;
     }
 };
+
 #endif //CLK_CLOCK_MANAGER_H

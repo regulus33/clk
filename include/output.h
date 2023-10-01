@@ -27,5 +27,7 @@ public:
     void toggleBit3() {
         pinStates ^= (1 << 3);
     }
+
+
 };
 #endif //CLK_OUTPUT_H

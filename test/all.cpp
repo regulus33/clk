@@ -10,9 +10,11 @@
 #define UNITY_OUTPUT_CHAR(a) DEBUG_PRINT(a)
 #include "unity.h"
 #include "Arduino.h"
-#include "output.h"
 #include "division.h"
 #include "clock_manager.h"
+#include "dummy_test_clock.h"
+
+
 
 void expectEqual(int a, int b) {
     TEST_ASSERT_EQUAL(b, a);
@@ -25,36 +27,6 @@ void resetOutputPins() {
     digitalWrite(11, LOW);
 }
 
-// ACTUAL TESTS ========
-void testRun_Output_writeOutputs() {
-    resetOutputPins();
-    Output output;
-    output.commitPinStatesToRegister();
-    expectEqual(digitalRead(8), LOW);
-    expectEqual(digitalRead(9), LOW);
-    expectEqual(digitalRead(10), LOW);
-    expectEqual(digitalRead(11), LOW);
-}
-
-void testRun_Output_toggleOutput() {
-    /* reset pin states */
-    resetOutputPins();
-    Output output;
-    output.commitPinStatesToRegister();
-    expectEqual(digitalRead(8), LOW);
-    expectEqual(digitalRead(9), LOW);
-    expectEqual(digitalRead(10), LOW);
-    expectEqual(digitalRead(11), LOW);
-    output.toggleBit0();
-    output.toggleBit1();
-    output.toggleBit2();
-    output.toggleBit3();
-    output.commitPinStatesToRegister();
-    expectEqual(digitalRead(8), HIGH);
-    expectEqual(digitalRead(9), HIGH);
-    expectEqual(digitalRead(10), HIGH);
-    expectEqual(digitalRead(11), HIGH);
-}
 
 void testRun_Division_tick1() {
     Division division;
@@ -90,23 +62,62 @@ void testRun_Division_tick3() {
     expectEqual(division.tick(), 1);
 }
 
-void test_ClockManager_update() {
+
+
+
+void test_ClockManager_tick_WHEN_DIVS_1111() {
     resetOutputPins();
     ClockManager clockManager;
-    expectEqual(clockManager.output.pinStates, 0b00000000);
-    clockManager.updateState();
-    expectEqual(clockManager.output.pinStates, 0b00001111);
+    DummyTestClock dummyTestClock(clockManager, 1, 1, 1, 1);
+    dummyTestClock.fakeClockCycles8();
+    for(int i = 0; i < 8; i++) {
+        for(int d = 0; d < 4; d++) {
+            expectEqual(dummyTestClock.pinStateSnapshots[i], 0b00001111);
+        }
+    }
 }
+
+void test_ClockManager_tick_WHEN_DIVS_2222() {
+    resetOutputPins();
+    ClockManager clockManager;
+    DummyTestClock dummyTestClock(clockManager, 2, 2, 2, 2);
+    dummyTestClock.fakeClockCycles8();
+    expectEqual(dummyTestClock.pinStateSnapshots[0], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[1], 0b00001111);
+    expectEqual(dummyTestClock.pinStateSnapshots[2], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[3], 0b00001111);
+    expectEqual(dummyTestClock.pinStateSnapshots[4], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[5], 0b00001111);
+    expectEqual(dummyTestClock.pinStateSnapshots[6], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[7], 0b00001111);
+
+}
+
+void test_ClockManager_tick_WHEN_DIVS_3333() {
+    resetOutputPins();
+    ClockManager clockManager;
+    DummyTestClock dummyTestClock(clockManager, 3, 3, 3, 3);
+    dummyTestClock.fakeClockCycles8();
+    expectEqual(dummyTestClock.pinStateSnapshots[0], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[1], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[2], 0b00001111);
+    expectEqual(dummyTestClock.pinStateSnapshots[3], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[4], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[5], 0b00001111);
+    expectEqual(dummyTestClock.pinStateSnapshots[6], 0b00000000);
+    expectEqual(dummyTestClock.pinStateSnapshots[7], 0b00000000);
+
+}
+
 
 int runUnityTests(void) {
     UNITY_BEGIN();
     long now = micros();
-    RUN_TEST(testRun_Output_writeOutputs);
-    RUN_TEST(testRun_Output_toggleOutput);
     RUN_TEST(testRun_Division_tick1);
     RUN_TEST(testRun_Division_tick2);
     RUN_TEST(testRun_Division_tick3);
-    RUN_TEST(test_ClockManager_update);
+    RUN_TEST(test_ClockManager_tick_WHEN_DIVS_1111);
+    RUN_TEST(test_ClockManager_tick_WHEN_DIVS_2222);
     long later = micros();
     long total_time = later - now;
     Serial.println("TOTAL TIME:========");
@@ -127,6 +138,7 @@ void setup() {
     // establishes connection with a board Serial interface
     delay(2000);
     runUnityTests();
+
 }
 
 void loop() {
