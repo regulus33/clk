@@ -34,10 +34,6 @@ public:
         divIndex = division - 1;
     }
 
-    int willTick() {
-        return counter % divs[divIndex] == 0;
-    }
-
     int tick() {
         int tick = 0;
         if (counter % divs[divIndex] == 0) {
