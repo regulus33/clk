@@ -4,6 +4,7 @@
 #include "division.h"
 #include "clock_manager.h"
 #include "dummy_test_clock.h"
+#include "buttons.h"
 
 void setup() {
  // initialize the avr-debugger
@@ -18,7 +19,20 @@ void setup() {
  *          TESTS
  */
 
+char* toBinaryString(uint8_t value, char* buffer) {
+    buffer[8] = '\0';  // Null-terminate the string
+    for (int i = 7; i >= 0; --i) {
+        buffer[i] = (value & 1) ? '1' : '0';
+        value >>= 1;
+    }
+    return buffer;
+}
+
 bool expectEqual(int a, int b) {
+//    char buffer_a[9];
+//    toBinaryString(a, buffer_a);
+//    char buffer_b[9];
+//    toBinaryString(b, buffer_b);
     if(a != b) {
         return false;
     }
@@ -32,38 +46,16 @@ void resetOutputPins() {
     digitalWrite(11, LOW);
 }
 
-void test_ClockManager_tick_WHEN_DIVS_1111() {
-    resetOutputPins();
-    ClockManager clockManager;
-    DummyTestClock dummyTestClock(clockManager, 1, 1, 1, 1);
-    dummyTestClock.fakeClockCycles8();
-    for(int i = 0; i < 8; i++) {
-        for(int d = 0; d < 4; d++) {
-            expectEqual(dummyTestClock.pinStateSnapshots[i], 0b00001111);
-        }
-    }
+void testRun_Buttons_when_pressed_1() {
+    Buttons buttons;
+    buttons.read();
+//    expectEqual(buttons.buttonStates[0], B0000001); // working!
+    expectEqual(buttons.buttonPressedStates[0], B0000001);
 }
-
-void test_ClockManager_tick_WHEN_DIVS_2222() {
-    resetOutputPins();
-    ClockManager clockManager;
-    DummyTestClock dummyTestClock(clockManager, 2, 2, 2, 2);
-    dummyTestClock.fakeClockCycles8();
-    expectEqual(dummyTestClock.pinStateSnapshots[0], 0b00000000);
-    expectEqual(dummyTestClock.pinStateSnapshots[1], 0b00001111);
-    expectEqual(dummyTestClock.pinStateSnapshots[2], 0b00000000);
-    expectEqual(dummyTestClock.pinStateSnapshots[3], 0b00001111);
-    expectEqual(dummyTestClock.pinStateSnapshots[4], 0b00000000);
-    expectEqual(dummyTestClock.pinStateSnapshots[5], 0b00001111);
-    expectEqual(dummyTestClock.pinStateSnapshots[6], 0b00000000);
-    expectEqual(dummyTestClock.pinStateSnapshots[7], 0b00001111);
-
-}
-
 
 ClockManager clockManager;
 void loop() {
-
+//    expectEqual(digitalRead(7), LOW);
 //    testRun_Output_writeOutputs();
 //    testRun_Output_toggleOutput();
 //    testRun_Division_tick1();
@@ -71,6 +63,8 @@ void loop() {
 //    testRun_Division_tick3();
 //    test_ClockManager_update();
 //    test_ClockManager_tick_WHEN_DIVS_1111();
-    test_ClockManager_tick_WHEN_DIVS_2222();
+//    test_ClockManager_tick_WHEN_DIVS_2222();
+//    testRun_Buttons_when_pressed_1();
+
 
 }
