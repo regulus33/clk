@@ -11,9 +11,11 @@ ClockManager clockManager;
 void clockPulseInterrupt() { clockManager.tick(); }
 TimerManager timerManager(30, 24, clockPulseInterrupt);
 OledDisplay display;
+Buttons buttons;
 unsigned int lastBpm = 120;
 
 void setup() {
+    Serial.begin(9600);
     pinMode(8, OUTPUT);
     pinMode(9, OUTPUT);
     pinMode(10, OUTPUT);
@@ -24,10 +26,14 @@ void setup() {
     timerManager.begin();
 }
 
-
-
-
 void loop() {
+    buttons.read();
+    if(buttons.buttonPressedStates[0]) {
+        Serial.println(0);
+    } else {
+        clockManager.division1.incrementDiv();
+        Serial.println(1);
+    }
     timerManager.updateBPMFromA0();
     if(timerManager.bpm != lastBpm) {
         display.printLine(timerManager.bpm);

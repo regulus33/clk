@@ -2,8 +2,8 @@
 // Created by zack on 9/3/23.
 //
 
-#ifndef CLOCK_DIVIDER_OLEDDISPLAYSERVICE_H
-#define CLOCK_DIVIDER_OLEDDISPLAYSERVICE_H
+#ifndef OLED_DISPLAY_H
+#define OLED_DISPLAY_H
 
 #include <SPI.h>
 #include <Wire.h>
@@ -85,4 +85,4 @@ private:
 };
 
 
-#endif //CLOCK_DIVIDER_OLEDDISPLAYSERVICE_H
+#endif //OLED_DISPLAY_H

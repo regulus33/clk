@@ -28,18 +28,21 @@ public:
 
     // Read current states of buttons
     void read() {
-        // Read D7 directly from the register and update state
+
         uint8_t currentState = (PIND & B10000000) >> 7;
         if (currentState != buttonStates[0]) {
             buttonStates[0] = currentState;
             unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY) {
-                buttonPressedStates[0] = currentState;
+            if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY && currentState == 1) {
+                buttonPressedStates[0] = 1;
+             // TODO: do we really need to set it back to 0?
+            } else {
+                buttonPressedStates[0] = 0;
             }
             buttonLastChanged[0] = currentTime;
         }
 
-        // Read D6 directly from the register and update state
+
         currentState = (PIND & B01000000) >> 6;
         if (currentState != buttonStates[1]) {
             buttonStates[1] = currentState;
