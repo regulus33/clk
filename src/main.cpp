@@ -9,9 +9,9 @@
 /* Global instances */
 ClockManager clockManager;
 void clockPulseInterrupt() { clockManager.tick(); }
-TimerManager timerManager(30, 24, clockPulseInterrupt);
+TimerManager timerManager(30, 12, clockPulseInterrupt);
 OledDisplay display;
-Buttons buttons;
+Buttons buttons(display, clockManager);
 unsigned int lastBpm = 120;
 
 void setup() {
@@ -22,20 +22,23 @@ void setup() {
     pinMode(11, OUTPUT);
     pinMode(A0, INPUT);
     display.setup();
-    display.printLine("penis time");
+    display.printLine("poopoo?");
     timerManager.begin();
 }
 
 void loop() {
     buttons.read();
-    if(buttons.buttonPressedStates[0]) {
-        Serial.println(0);
-    } else {
-        clockManager.division1.incrementDiv();
-        Serial.println(1);
-    }
+//    if(buttons.buttonPressedStates[0]) {
+//        Serial.println(0);
+//    } else {
+//        clockManager.division1.incrementDiv();
+//        display.printLine(clockManager.division1.incrementDiv());
+//        Serial.println(1);
+//    }
     timerManager.updateBPMFromA0();
     if(timerManager.bpm != lastBpm) {
+        Serial.println("value changed");
         display.printLine(timerManager.bpm);
+        lastBpm = timerManager.bpm;
     }
 }

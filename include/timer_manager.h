@@ -14,7 +14,7 @@ public:
     byte ppqn;
     void (*clockPulseInterrupt)();
     ClockManager clockManager;
-    explicit TimerManager(float initialBPM = 120, byte initialPPQN = 24, void (*clockPulseInterrupt)() = nullptr):
+    explicit TimerManager(float initialBPM = 120, byte initialPPQN = 12, void (*clockPulseInterrupt)() = nullptr):
             intervalMicroSeconds(calculateIntervalMicroSecs()),
             bpm(initialBPM),
             ppqn(initialPPQN),

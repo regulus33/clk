@@ -7,22 +7,27 @@
 //
 // Created by zack on 9/15/23.
 //
-const int maxDivision = 8;
-const char *divisions[] = {
-        "1",
-        "2",
-        "3",
+const int maxDivision = 10;
+const char divisions[10][12] = {
+        "24 PPQN | 1",
+        "12 PPQN | 2",
+        "8 PPQN | 3",
         "4",
         "5",
         "6",
         "7",
         "8",
+        "2 PPQN",
+        "1 PPQN"
+
 };
-const int divs[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+
+
+const int divs[10] = {1, 2, 3, 4, 5, 6, 7, 8, 12, 24};
 
 struct Division {
     int counter = 1;
-    int divIndex = 7;
+    int divIndex = 1;
 
 public:
     const char *incrementDiv() {

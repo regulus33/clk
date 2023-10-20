@@ -8,6 +8,8 @@
 #define BUTTONS_H
 
 #include <Arduino.h>
+#include "oled_display.h"
+#include "clock_manager.h"
 
 #define DEBOUNCE_DELAY 50
 
@@ -17,9 +19,11 @@ public:
     uint8_t buttonStates[4] = {0, 0, 0, 0};
     uint8_t buttonPressedStates[4] = {0, 0, 0, 0};
     unsigned long buttonLastChanged[4] = {0, 0, 0, 0};
+    OledDisplay& oledDisplay;
+    ClockManager& clockManager;
 
     // Constructor to set pin modes
-    Buttons() {
+    Buttons(OledDisplay& oledDisplay, ClockManager& clockManager) : oledDisplay(oledDisplay), clockManager(clockManager) {
         pinMode(7, INPUT_PULLUP);
         pinMode(6, INPUT_PULLUP);
         pinMode(5, INPUT_PULLUP);
@@ -33,11 +37,13 @@ public:
         if (currentState != buttonStates[0]) {
             buttonStates[0] = currentState;
             unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY && currentState == 1) {
-                buttonPressedStates[0] = 1;
-             // TODO: do we really need to set it back to 0?
-            } else {
-                buttonPressedStates[0] = 0;
+            if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY && currentState == 0) {
+//                buttonPressedStates[0] = 1;
+//
+//                    noInterrupts();
+                    oledDisplay.printLine(clockManager.division1.incrementDiv());
+
+//                    interrupts();
             }
             buttonLastChanged[0] = currentTime;
         }
