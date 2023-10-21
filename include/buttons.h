@@ -16,8 +16,7 @@
 class Buttons {
 public:
     // Initialize arrays to store button states, pressed states and last changed timestamps
-    uint8_t buttonStates[4] = {0, 0, 0, 0};
-    uint8_t buttonPressedStates[4] = {0, 0, 0, 0};
+    uint8_t buttonStates[4] = {1, 1, 1, 1};
     unsigned long buttonLastChanged[4] = {0, 0, 0, 0};
     OledDisplay& oledDisplay;
     ClockManager& clockManager;
@@ -27,54 +26,30 @@ public:
         pinMode(7, INPUT_PULLUP);
         pinMode(6, INPUT_PULLUP);
         pinMode(5, INPUT_PULLUP);
-        pinMode(12, INPUT_PULLUP);
+        pinMode(4, INPUT_PULLUP);
+    }
+
+
+    void readButtonPulseAndUpdateDivisions(Division& division, int buttonStatesIndex, uint8_t currentState) {
+        //TODO: what benefit are we gaining from currentState != buttonStates[buttonStatesIndex] if we alsio do the currentState == 0 check below
+        if (currentState != buttonStates[buttonStatesIndex]) {
+            buttonStates[buttonStatesIndex] = currentState;
+            unsigned long currentTime = millis();
+            //TODO: or maybe a better question, why do we need to ask currentState == 0 if we already know that the state has changed? i.e. currentState != buttonStates[buttonStatesIndex] this feels like a bandaid
+            if (currentTime - buttonLastChanged[buttonStatesIndex] > DEBOUNCE_DELAY && currentState == 0) {
+                oledDisplay.printLine(division.incrementDiv(), 1);
+                buttonLastChanged[buttonStatesIndex] = currentTime;
+            }
+
+        }
     }
 
     // Read current states of buttons
     void read() {
-
-        uint8_t currentState = (PIND & B10000000) >> 7;
-        if (currentState != buttonStates[0]) {
-            buttonStates[0] = currentState;
-            unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY && currentState == 0) {
-                    oledDisplay.printLine(clockManager.division1.incrementDiv(), 1);
-            }
-            buttonLastChanged[0] = currentTime;
-        }
-
-
-        currentState = (PIND & B01000000) >> 6;
-        if (currentState != buttonStates[1]) {
-            buttonStates[1] = currentState;
-            unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[1] > DEBOUNCE_DELAY && currentState == 0) {
-                oledDisplay.printLine(clockManager.division2.incrementDiv(), 1);
-            }
-            buttonLastChanged[1] = currentTime;
-        }
-
-        // Read D5 directly from the register and update state
-        currentState = (PIND & B00100000) >> 5;
-        if (currentState != buttonStates[2]) {
-            buttonStates[2] = currentState;
-            unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[2] > DEBOUNCE_DELAY && currentState == 0) {
-                oledDisplay.printLine(clockManager.division3.incrementDiv(), 1);
-            }
-            buttonLastChanged[2] = currentTime;
-        }
-
-        // Read D12 directly from the register and update state
-        currentState = (PINB & B00010000) >> 4;
-        if (currentState != buttonStates[3]) {
-            buttonStates[3] = currentState;
-            unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[3] > DEBOUNCE_DELAY && currentState == 0) {
-                oledDisplay.printLine(clockManager.division4.incrementDiv(), 1);
-            }
-            buttonLastChanged[3] = currentTime;
-        }
+        readButtonPulseAndUpdateDivisions(clockManager.division1, 0, (PIND & B10000000) >> 7);
+        readButtonPulseAndUpdateDivisions(clockManager.division2, 1, (PIND & B01000000) >> 6);
+        readButtonPulseAndUpdateDivisions(clockManager.division3, 2, (PIND & B00100000) >> 5);
+        readButtonPulseAndUpdateDivisions(clockManager.division4, 3, (PIND & B00010000) >> 4);
     }
 };
 
