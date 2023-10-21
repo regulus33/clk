@@ -5,7 +5,7 @@
 #ifndef CLK_BUTTONS_H
 #define CLK_BUTTONS_H
 #ifndef BUTTONS_H
-#define BUTTONS_H
+#define BUTONS_H
 
 #include <Arduino.h>
 #include "oled_display.h"
@@ -38,12 +38,7 @@ public:
             buttonStates[0] = currentState;
             unsigned long currentTime = millis();
             if (currentTime - buttonLastChanged[0] > DEBOUNCE_DELAY && currentState == 0) {
-//                buttonPressedStates[0] = 1;
-//
-//                    noInterrupts();
-                    oledDisplay.printLine(clockManager.division1.incrementDiv());
-
-//                    interrupts();
+                    oledDisplay.printLine(clockManager.division1.incrementDiv(), 1);
             }
             buttonLastChanged[0] = currentTime;
         }
@@ -53,8 +48,8 @@ public:
         if (currentState != buttonStates[1]) {
             buttonStates[1] = currentState;
             unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[1] > DEBOUNCE_DELAY) {
-                buttonPressedStates[1] = currentState;
+            if (currentTime - buttonLastChanged[1] > DEBOUNCE_DELAY && currentState == 0) {
+                oledDisplay.printLine(clockManager.division2.incrementDiv(), 1);
             }
             buttonLastChanged[1] = currentTime;
         }
@@ -64,8 +59,8 @@ public:
         if (currentState != buttonStates[2]) {
             buttonStates[2] = currentState;
             unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[2] > DEBOUNCE_DELAY) {
-                buttonPressedStates[2] = currentState;
+            if (currentTime - buttonLastChanged[2] > DEBOUNCE_DELAY && currentState == 0) {
+                oledDisplay.printLine(clockManager.division3.incrementDiv(), 1);
             }
             buttonLastChanged[2] = currentTime;
         }
@@ -75,8 +70,8 @@ public:
         if (currentState != buttonStates[3]) {
             buttonStates[3] = currentState;
             unsigned long currentTime = millis();
-            if (currentTime - buttonLastChanged[3] > DEBOUNCE_DELAY) {
-                buttonPressedStates[3] = currentState;
+            if (currentTime - buttonLastChanged[3] > DEBOUNCE_DELAY && currentState == 0) {
+                oledDisplay.printLine(clockManager.division4.incrementDiv(), 1);
             }
             buttonLastChanged[3] = currentTime;
         }

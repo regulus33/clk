@@ -4,26 +4,25 @@
 
 #ifndef CLK_DIVISION_H
 #define CLK_DIVISION_H
+#define MAX_DIV_COUNT 8
 //
 // Created by zack on 9/15/23.
 //
-const int maxDivision = 10;
-const char divisions[10][12] = {
-        "24 PPQN | 1",
-        "12 PPQN | 2",
-        "8 PPQN | 3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "2 PPQN",
-        "1 PPQN"
+const int maxDivision = MAX_DIV_COUNT;
+const char divisions[MAX_DIV_COUNT][13] = {
+        "24 PPQN",
+        "1 / 2",
+        "1 / 3",
+        "1 / 4",
+        "1 / 5",
+        "1 / 6",
+        "1 / 7",
+        "1 / 8",
 
 };
 
 
-const int divs[10] = {1, 2, 3, 4, 5, 6, 7, 8, 12, 24};
+const int divs[MAX_DIV_COUNT] = {1, 2, 3, 4, 5, 6, 7, 8 };
 
 struct Division {
     int counter = 1;

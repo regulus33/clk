@@ -12,22 +12,6 @@ public:
     Division division3;
     Division division4;
 
-    void increment1() {
-        division1.incrementDiv();
-    }
-
-    void increment2() {
-        division2.incrementDiv();
-    }
-
-    void increment3() {
-        division3.incrementDiv();
-    }
-
-    void increment4() {
-        division4.incrementDiv();
-    }
-
     void tick() {
         PORTB = 0x00;
         division1.tick() ? PORTB ^= (1 << PORTB0) : 0;

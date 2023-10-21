@@ -31,14 +31,14 @@ public:
         display.display();
     }
 
-    void printLine(int value) {
+    void printLine(int value, int text_size = TEXT_SIZE) {
         char buffer[4];  // make sure this is large enough to hold all digits and null terminator;
         itoa(value, buffer, 10);
         printLine(buffer);
     }
 
 
-    void printLine(const char* value){
+    void printLine(const char* value, int text_size = TEXT_SIZE){
         clear();
         uint16_t width = SCREEN_WIDTH;
         uint16_t height = SCREEN_HEIGHT;
@@ -52,7 +52,7 @@ public:
         int y = (height - h) / 2;
 
         /*! Clear the display, set the cursor position, and then print the text */
-        display.setTextSize(TEXT_SIZE); // Draw 2X-scale text
+        display.setTextSize(text_size); // Draw 2X-scale text
         display.setTextColor(WHITE);
         display.clearDisplay();
         display.setCursor(x, y);
