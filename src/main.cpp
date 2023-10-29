@@ -26,13 +26,6 @@ void setup() {
 
 void loop() {
     buttons.read();
-//    if(buttons.buttonPressedStates[0]) {
-//        Serial.println(0);
-//    } else {
-//        clockManager.division1.incrementDiv();
-//        display.printLine(clockManager.division1.incrementDiv());
-//        Serial.println(1);
-//    }
     timerManager.updateBPMFromA0();
     if(timerManager.bpm != lastBpm) {
         Serial.println("value changed");
