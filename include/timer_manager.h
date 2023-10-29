@@ -1,6 +1,6 @@
 #ifndef MY_CLOCK_DIVIDER_H
 #define MY_CLOCK_DIVIDER_H
-#define POT_DEADZONE 10
+#define POT_DEADZONE 20
 #define LAST_ADC_VALUE 120
 
 #include <TimerOne.h>
@@ -14,7 +14,7 @@ public:
     byte ppqn;
     void (*clockPulseInterrupt)();
     ClockManager clockManager;
-    explicit TimerManager(float initialBPM = 120, byte initialPPQN = 12, void (*clockPulseInterrupt)() = nullptr):
+    explicit TimerManager(float initialBPM = 120, byte initialPPQN = 24, void (*clockPulseInterrupt)() = nullptr):
             intervalMicroSeconds(calculateIntervalMicroSecs()),
             bpm(initialBPM),
             ppqn(initialPPQN),
@@ -41,7 +41,7 @@ public:
         // If ADC value changed significantly (i.e. not jitter)
         if(adcValue - lastAdcValue > POT_DEADZONE) {
             // Convert ADC value to BPM
-            bpm = map(adcValue, 0, 1023, 222, 30);
+            bpm = map(adcValue, 0, 1023, 180, 50);
             // Change timer frequency
             Timer1.setPeriod(calculateIntervalMicroSecs());
             lastAdcValue = adcValue;

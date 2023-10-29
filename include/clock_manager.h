@@ -13,11 +13,14 @@ public:
     Division division4;
 
     void tick() {
-        PORTB = 0x00;
-        division1.tick() ? PORTB ^= (1 << PORTB0) : 0;
-        division2.tick() ? PORTB ^= (1 << PORTB1) : 0;
-        division3.tick() ? PORTB ^= (1 << PORTB2) : 0;
-        division4.tick() ? PORTB ^= (1 << PORTB3) : 0;
+        // Clear all bits first
+        PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
+
+        // Set bits according to the tick() methods
+        if (division1.tick()) PORTB |= (1 << PORTB0);
+        if (division2.tick()) PORTB |= (1 << PORTB1);
+        if (division3.tick()) PORTB |= (1 << PORTB2);
+        if (division4.tick()) PORTB |= (1 << PORTB3);
     }
 };
 

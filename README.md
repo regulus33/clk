@@ -6,7 +6,7 @@ CLK is a master clock and clock divider with 4 configurable outputs that can eit
 **Software Architecture:**
 
 Output: Manages the physical pins D8-D11 directly via PORT_B, avoiding standard Arduino libraries.
-Divider: Each instance has a division and a counter that increments on every clock tick and wraps at 8.
+Divider: Each instance has a steps and a endArray that increments on every clock tick and wraps at 8.
 Efficiency: Instead of writing to individual pins, an entire byte pinStates is written to PORT_B, reflecting the state of the 4 Divider instances.
 
 **Clock Tick:** The master clock tick triggers the update of pinStates, which is then written to the outputs.

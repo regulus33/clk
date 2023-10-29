@@ -9,20 +9,18 @@
 /* Global instances */
 ClockManager clockManager;
 void clockPulseInterrupt() { clockManager.tick(); }
-TimerManager timerManager(30, 12, clockPulseInterrupt);
+TimerManager timerManager(30, 24, clockPulseInterrupt);
 OledDisplay display;
 Buttons buttons(display, clockManager);
 unsigned int lastBpm = 120;
 
 void setup() {
-    Serial.begin(9600);
     pinMode(8, OUTPUT);
     pinMode(9, OUTPUT);
     pinMode(10, OUTPUT);
     pinMode(11, OUTPUT);
     pinMode(A0, INPUT);
     display.setup();
-    display.printLine("poopoo?");
     timerManager.begin();
 }
 
