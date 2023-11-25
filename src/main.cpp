@@ -7,8 +7,10 @@
 #include "oled_display.h"
 
 /* Global instances */
+
 ClockManager clockManager;
-void clockPulseInterrupt() { clockManager.tick(); }
+int pulseReceived = 0;
+void clockPulseInterrupt() { pulseReceived = 1; };
 TimerManager timerManager(30, 24, clockPulseInterrupt);
 OledDisplay display;
 Buttons buttons(display, clockManager);
@@ -25,6 +27,10 @@ void setup() {
 }
 
 void loop() {
+    if(pulseReceived == 1) {
+        clockManager.tick();
+        pulseReceived = 0;
+    }
     buttons.read();
     timerManager.updateBPMFromA0();
     if(timerManager.bpm != lastBpm) {
