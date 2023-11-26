@@ -7,80 +7,46 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include "Adafruit_GFX.h"
-#include "Adafruit_SSD1306.h"
 #include <Arduino.h>
+#include "SSD1306Ascii.h"
+#include "SSD1306AsciiAvrI2c.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define TEXT_SIZE 3
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-#define OLED_RESET     -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-Adafruit_SSD1306 d(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+#define I2C_ADDRESS 0x3C
+#define RST_PIN -1
 
 class OledDisplay {
 private:
-    Adafruit_SSD1306& display = d;
+    SSD1306AsciiAvrI2c oled;
 public:
     void setup() {
-        if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-            for(;;);
-        }
-        clear();
-        display.display();
+#if RST_PIN >= 0
+        oled.begin(&Adafruit128x64, I2C_ADDRESS, RST_PIN);
+#else // RST_PIN >= 0
+        oled.begin(&Adafruit128x64, I2C_ADDRESS);
+#endif // RST_PIN >= 0
+        // Call oled.setI2cClock(frequency) to change from the default frequency.
+
+        oled.setFont(System5x7);
+        oled.clear();
     }
 
     void printLine(int value, int text_size = TEXT_SIZE) {
-        char buffer[4];  // make sure this is large enough to hold all digits and null terminator;
-        itoa(value, buffer, 10);
-        printLine(buffer);
-    }
-
-
-    void printLine(const char* value, int text_size = TEXT_SIZE){
         clear();
-        uint16_t width = SCREEN_WIDTH;
-        uint16_t height = SCREEN_HEIGHT;
-
-        uint16_t w, h;
-
-        display.getTextBounds(value, 0, 0, nullptr, nullptr, &w, &h); // Calculate the bounds of the text
-
-        /*! Calculate the position to start the text to make it centered */
-        int x = (width - w) / 2;
-        int y = (height - h) / 2;
-
-        /*! Clear the display, set the cursor position, and then print the text */
-        display.setTextSize(text_size); // Draw 2X-scale text
-        display.setTextColor(WHITE);
-        display.clearDisplay();
-        display.setCursor(x, y);
-        display.print(value);
-        display.display();
+        oled.print(value);
     }
 
-    void hardwareTest() {
+
+    void printLine(const char *value, int text_size = TEXT_SIZE) {
         clear();
-        printLine("Clawk");
-        delay(1);
-        drawSplashCircles();
-        printLine(255);
+        oled.print(value);
     }
+
 
     void clear() {
-        display.clearDisplay();
-    }
-
-private:
-    void drawSplashCircles(void) {
-        display.clearDisplay();
-        for(int16_t i=max(display.width(),display.height())/2; i>0; i-=3) {
-            // The INVERSE color is used so circles alternate white/black
-            display.fillCircle(display.width() / 2, display.height() / 2, i, INVERSE);
-            display.display(); // Update screen with each newly-drawn circle
-            delay(0.2);
-        }
+        oled.clear();
     }
 };
 

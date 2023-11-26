@@ -4,7 +4,10 @@
 #define LAST_ADC_VALUE 120
 
 #include <TimerOne.h>
+#include <Arduino.h>
+
 #include "clock_manager.h"
+#include "ram_service.h"
 
 class TimerManager {
 public:

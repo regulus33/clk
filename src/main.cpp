@@ -1,3 +1,4 @@
+#define DEBUG
 #include "Arduino.h"
 #include "division.h"
 #include "clock_manager.h"
@@ -17,12 +18,22 @@ Buttons buttons(display, clockManager);
 unsigned int lastBpm = 120;
 
 void setup() {
+#ifdef DEBUG
+    Serial.begin(9600);
+    Serial.println(F("[MAIN][SETUP] - setting pinMode OUTPUT on 8,9,10,11"));
+    RamService::printMemoryUsage();
+#endif
     pinMode(8, OUTPUT);
     pinMode(9, OUTPUT);
     pinMode(10, OUTPUT);
     pinMode(11, OUTPUT);
     pinMode(A0, INPUT);
     display.setup();
+#ifdef DEBUG
+    Serial.begin(9600);
+    Serial.println(F("[MAIN][SETUP] - init display"));
+    RamService::printMemoryUsage();
+#endif
     timerManager.begin();
 }
 
