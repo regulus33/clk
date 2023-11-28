@@ -1,3 +1,6 @@
+//
+// Created by zack on 9/3/23.
+//
 #ifndef MY_CLOCK_DIVIDER_H
 #define MY_CLOCK_DIVIDER_H
 #define POT_DEADZONE 20

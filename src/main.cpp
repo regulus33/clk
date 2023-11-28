@@ -45,7 +45,12 @@ void loop() {
     buttons.read();
     timerManager.updateBPMFromA0();
     if(timerManager.bpm != lastBpm) {
-        Serial.println("value changed");
+#ifdef DEBUG
+        Serial.print(F("[MAIN][LOOP] - pot value changed, printing: "));
+        Serial.print(timerManager.bpm);
+        Serial.println(F(""));
+#endif
+
         display.printLine(timerManager.bpm);
         lastBpm = timerManager.bpm;
     }

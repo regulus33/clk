@@ -1,7 +1,6 @@
 //
 // Created by zack on 9/3/23.
 //
-
 #ifndef OLED_DISPLAY_H
 #define OLED_DISPLAY_H
 
@@ -22,31 +21,42 @@ private:
     SSD1306AsciiAvrI2c oled;
 public:
     void setup() {
-#if RST_PIN >= 0
-        oled.begin(&Adafruit128x64, I2C_ADDRESS, RST_PIN);
-#else // RST_PIN >= 0
         oled.begin(&Adafruit128x64, I2C_ADDRESS);
-#endif // RST_PIN >= 0
-        // Call oled.setI2cClock(frequency) to change from the default frequency.
-
         oled.setFont(System5x7);
+        oled.set2X();
         oled.clear();
     }
 
     void printLine(int value, int text_size = TEXT_SIZE) {
-        clear();
-        oled.print(value);
+        char buffer[4];  // A buffer to hold the resulting string, should be large enough to hold the number and the null terminator
+
+        // Convert the integer to a char array (string) in decimal base
+        itoa(value, buffer, 10);
+        printLine(buffer);
     }
 
 
     void printLine(const char *value, int text_size = TEXT_SIZE) {
-        clear();
-        oled.print(value);
-    }
-
-
-    void clear() {
         oled.clear();
+#ifdef XDEBUG
+        uint8_t width = oled.strWidth(value);
+        uint8_t displayWidth = oled.displayWidth();
+        uint8_t horizontalMidPoint = (displayWidth - width) / 2;
+        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - width of input string: "));
+        Serial.print(width);
+        Serial.println(F(""));
+        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - width of display: "));
+        Serial.print(displayWidth);
+        Serial.println(F(""));
+        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - horizontal midpoint: "));
+        Serial.print(horizontalMidPoint);
+        Serial.println(F(""));
+        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - screen height: "));
+        Serial.print( oled.fontRows());
+        Serial.println(F(""));
+#endif
+        oled.setCursor(52,  3);
+        oled.print(value);
     }
 };
 

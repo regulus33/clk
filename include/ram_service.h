@@ -1,8 +1,6 @@
 //
 // Created by zachary rowden on 25.11.2023.
 //
-
-
 #ifndef CLK_RAM_SERVICE_H
 #define CLK_RAM_SERVICE_H
 #include <Arduino.h>

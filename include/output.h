@@ -2,9 +2,9 @@
 // Created by zack on 9/28/23.
 //
 #include <Arduino.h>
-
 #ifndef CLK_OUTPUT_H
 #define CLK_OUTPUT_H
+
 struct Output {
 public:
     uint8_t pinStates = 0b00000000;
