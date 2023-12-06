@@ -4,61 +4,52 @@
 #ifndef OLED_DISPLAY_H
 #define OLED_DISPLAY_H
 
-#include <SPI.h>
+#include <U8x8lib.h>
 #include <Wire.h>
-#include <Arduino.h>
-#include "SSD1306Ascii.h"
-#include "SSD1306AsciiAvrI2c.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define TEXT_SIZE 3
 #define I2C_ADDRESS 0x3C
-#define RST_PIN -1
+
+enum PrintType {
+    BPM,
+    Div,
+    Rhythm,
+};
 
 class OledDisplay {
 private:
-    SSD1306AsciiAvrI2c oled;
+    U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;
+
 public:
     void setup() {
-        oled.begin(&Adafruit128x64, I2C_ADDRESS);
-        oled.setFont(System5x7);
-        oled.set2X();
-        oled.clear();
+        u8x8.begin();
+        u8x8.setFont(u8x8_font_chroma48medium8_r);
+
     }
 
-    void printLine(int value, int text_size = TEXT_SIZE) {
-        char buffer[4];  // A buffer to hold the resulting string, should be large enough to hold the number and the null terminator
+    /* convert int to char buffer and feed to char buffer implementation of print */
+    void printLine(uint8_t value, PrintType printType = BPM) {
+        char charBuffer[17];
 
-        // Convert the integer to a char array (string) in decimal base
-        itoa(value, buffer, 10);
-        printLine(buffer);
+        switch (printType) {
+            case BPM:
+                sprintf(charBuffer, "BPM: %03d", value);
+                break;
+            case Div:
+                sprintf(charBuffer, "DIV: %03d", value);
+                break;
+            case Rhythm:
+                sprintf(charBuffer, "BIT: %03d", value);
+                break;
+        }
+
+        printLine(charBuffer, printType);
     }
 
-
-    void printLine(const char *value, int text_size = TEXT_SIZE) {
-        oled.clear();
-#ifdef XDEBUG
-        uint8_t width = oled.strWidth(value);
-        uint8_t displayWidth = oled.displayWidth();
-        uint8_t horizontalMidPoint = (displayWidth - width) / 2;
-        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - width of input string: "));
-        Serial.print(width);
-        Serial.println(F(""));
-        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - width of display: "));
-        Serial.print(displayWidth);
-        Serial.println(F(""));
-        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - horizontal midpoint: "));
-        Serial.print(horizontalMidPoint);
-        Serial.println(F(""));
-        Serial.print(F("[OLED_DISPLAY][PRINT_LINE] - screen height: "));
-        Serial.print( oled.fontRows());
-        Serial.println(F(""));
-#endif
-        oled.setCursor(52,  3);
-        oled.print(value);
+    void printLine(char* charBuffer, PrintType printType = BPM) {
+        u8x8.draw2x2String(0,3,charBuffer);
     }
 };
-
 
 #endif //OLED_DISPLAY_H

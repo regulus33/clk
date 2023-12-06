@@ -6,23 +6,8 @@
 #define MAX_STEP_INDEX 16
 #define MAX_STEP 16
 
-const char stepsString[MAX_STEP][3] = {
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13",
-        "14",
-        "15",
-        "16",
+const int stepString[MAX_STEP] = {
+    1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 };
 
 
@@ -38,9 +23,9 @@ public:
     int steps[MAX_STEP]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     int endOfSteps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
-    const char *incrementDiv() {
+    const int incrementDiv() {
         currentIndexInEndOfSteps = (currentIndexInEndOfSteps + 1) % MAX_STEP_INDEX;
-        return stepsString[currentIndexInEndOfSteps];
+        return stepString[currentIndexInEndOfSteps];
     }
 
     void setDivision(int division) {

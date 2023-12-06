@@ -3,8 +3,6 @@
 //
 #ifndef CLK_BUTTONS_H
 #define CLK_BUTTONS_H
-#ifndef BUTTONS_H
-#define BUTONS_H
 
 #include <Arduino.h>
 #include "oled_display.h"
@@ -36,7 +34,7 @@ public:
             unsigned long currentTime = millis();
             //TODO: or maybe a better question, why do we need to ask currentState == 0 if we already know that the state has changed? i.e. currentState != buttonStates[buttonStatesIndex] this feels like a bandaid
             if (currentTime - buttonLastChanged[buttonStatesIndex] > DEBOUNCE_DELAY && currentState == 0) {
-                oledDisplay.printLine(division.incrementDiv(), 1);
+                oledDisplay.printLine(division.incrementDiv(), Div);
                 buttonLastChanged[buttonStatesIndex] = currentTime;
             }
 
@@ -52,5 +50,4 @@ public:
     }
 };
 
-#endif // BUTTONS_H
 #endif //CLK_BUTTONS_H

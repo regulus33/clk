@@ -51,7 +51,7 @@ void loop() {
         Serial.println(F(""));
 #endif
 
-        display.printLine(timerManager.bpm);
+        display.printLine(timerManager.bpm, BPM);
         lastBpm = timerManager.bpm;
     }
 }
