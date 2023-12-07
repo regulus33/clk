@@ -20,7 +20,7 @@ struct Division {
 
 
 public:
-    int steps[MAX_STEP]  = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    uint16_t steps = 0b0000000000000001;
     int endOfSteps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
     const int incrementDiv() {
@@ -33,11 +33,12 @@ public:
     }
 
     int tick() {
-        noInterrupts();
-
-        int tick = steps[currentIndexInSteps];
+//        noInterrupts();
+        uint16_t mask = 1 << currentIndexInSteps; // Create a mask for the bit at the given index
+        int tick = (steps & mask) >> currentIndexInSteps;
+        // TODO: modulo might be kind of expensive, look into alternatives?
         currentIndexInSteps = (currentIndexInSteps + 1) % endOfSteps[currentIndexInEndOfSteps];
-        interrupts();
+//        interrupts();
         return tick;
     }
 };

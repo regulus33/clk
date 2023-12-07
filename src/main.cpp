@@ -1,4 +1,3 @@
-#define DEBUG
 #include "Arduino.h"
 #include "division.h"
 #include "clock_manager.h"
