@@ -1,32 +1,40 @@
 # Overview
-CLK is a master clock and clock divider with 4 configurable outputs that can either divide the master clock or an external input. The outputs are managed via Output and Divider classes.
+```mermaid
+stateDiagram-v2
+    classDef releasedStyle fill:#FAD9D5,color:black,font-weight:bold,stroke-width:2px;
+    classDef debouncePressStyle fill:#f2bb96,color:black,font-weight:bold,stroke-width:2px;
+    classDef pressedStyle fill:#C5E4E7,color:black,font-weight:bold,stroke-width:2px;
+    classDef dbReleaseStyle fill:#E3E6B5,color:black,font-weight:bold,stroke-width:2px;
+    
+    class Released releasedStyle
+    class DebouncePress debouncePressStyle
+    class Pressed pressedStyle
+    class DebounceRelease dbReleaseStyle
+    
+    [*] --> Released: Initialize
+    Released --> DebouncePress: Button Press Detected
+    DebouncePress --> Pressed: After Debounce Delay
+    Pressed --> DebounceRelease: Button Release Detected
+    DebounceRelease --> Released: After Debounce Delay
+    
+    state Released {
+        ReleasedState: Wait for Button Press
+    }
+    
+    state DebouncePress {
+        DebouncePressState: Verify Button Press 🕒
+    }
+    
+    state Pressed {
+        PressedState: Wait for Button Release
+    }
+    
+    state DebounceRelease {
+        DebounceReleaseState: Verify Button Release 🕒
+    }
 
-**Hardware:** Each output is a jack with a parallel red LED, pulsing between 0V and +5V based on the clock's duty cycle.
-
-**Software Architecture:**
-
-Output: Manages the physical pins D8-D11 directly via PORT_B, avoiding standard Arduino libraries.
-Divider: Each instance has a steps and a endArray that increments on every clock tick and wraps at 8.
-Efficiency: Instead of writing to individual pins, an entire byte pinStates is written to PORT_B, reflecting the state of the 4 Divider instances.
-
-**Clock Tick:** The master clock tick triggers the update of pinStates, which is then written to the outputs.
-
-The system only requires an update to `pinStates` during each master clock tick, ensuring the outputs and connected gear stay synchronized.
-
-
-# Efficient Pin State Management on ATmega328p
-### Using a Single Byte to Track States
-```cpp
-uint8_t pulseStates = 0b00001111;  // Initialize to whatever you like
-
-// To set a particular bit (e.g., bit 2) to 1
-pulseStates |= (1 << 2);
-
-// To set a particular bit (e.g., bit 2) to 0
-pulseStates &= ~(1 << 2);
-
-// To toggle a particular bit (e.g., bit 2)
-pulseStates ^= (1 << 2);
+    note left of DebouncePress : We haven't verified the press with debounce yet
+ 
 
 ```
 
