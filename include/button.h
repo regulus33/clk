@@ -12,6 +12,7 @@ public:
         Released,
         DebouncePress,
         Pressed,
+        HeldDown,
         DebounceRelease
     };
 
@@ -32,6 +33,7 @@ public:
                 if ((millis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == HIGH) {
                         state = State::Pressed;
+                        lastHoldTime = millis();
                         // TODO: Handle button pressed event
                     } else {
                         state = State::Released;
@@ -40,8 +42,13 @@ public:
                 break;
             case State::Pressed:
                 if (pinValue == LOW) {
+                    // TODO: is this working if we move immediately into State::DebounceRelease
+                    // as soon as pinValue is LOW? I don't think so.
+                    // It might be as simple as considering State::DebounceRelease as pressed as well
                     state = State::DebounceRelease;
                     lastDebounceTime = millis();
+                } else {
+
                 }
                 break;
             case State::DebounceRelease:
@@ -51,6 +58,7 @@ public:
                         // TODO: Handle button released event
                     } else {
                         state = State::Pressed;
+                        lastHoldTime = millis();
                     }
                 }
                 break;
@@ -58,21 +66,24 @@ public:
     }
 
     bool isPressed() const {
+        // return (state == State::Pressed) || (state == State::DebounceRelease)
         return state == State::Pressed;
     };
 
-//    void attachInterrupt(void (*ISR)(void), int mode) {
-//        attachInterrupt(digitalPinToInterrupt(pin), ISR, mode);
-//    }
+    void setupInterrupt(void (*ISR)(void), int mode) {
+        attachInterrupt(digitalPinToInterrupt(pin), ISR, mode);
+    }
 
 
 private:
     uint8_t pin;
     volatile State state;
     unsigned long lastDebounceTime;
+    unsigned long lastHoldTime;
     const unsigned long debounceDelay = 50; // debounce time in milliseconds
+    const unsigned long holdDelay = 1000;
 
-    void handleInterrupt() {
+    static void handleInterrupt() {
         // This method will be called on interrupt
         // TODO: Update state or set flags as necessary
     }
