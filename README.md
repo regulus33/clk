@@ -103,6 +103,30 @@ sequenceDiagram
     DebounceRelease->>Released: debounceDelay > MIN
 ```
 ```mermaid
+sequenceDiagram
+    Note over ISR: ISR PIN LOW
+    ISR->>ButtonManager: buttonChangeInterrupt()
+    activate ButtonManager
+    Note over ButtonManager: poll PORTD until holdDelayPassed()
+    ButtonManager->>ButtonManager: callUpdateOnChildButtons()
+    Note over ButtonManager: TODO: debounce?
+    deactivate ButtonManager
+    ButtonManager->>MainLoop: setPressed(true)
+    activate ButtonManager
+    activate MainLoop
+    MainLoop->>Button: activate()
+    activate Button
+    Button->>Button: progressStateMachine()
+    Button->>ButtonManager: broadCastStateChange()
+    deactivate Button
+    ButtonManager->>MainLoop: broadCastStateChange()
+    deactivate MainLoop
+    ButtonManager->>Menu: update()
+    deactivate ButtonManager
+    
+    
+```
+```mermaid
 stateDiagram-v2
     classDef releasedStyle fill:#FAD9D5,color:black,font-weight:bold,stroke-width:2px;
     classDef debouncePressStyle fill:#f2bb96,color:black,font-weight:bold,stroke-width:2px;
