@@ -127,7 +127,7 @@ private:
         return stateString;
     }
 
-    TODO:
+//    TODO:
 //    void readButtonPulseAndUpdateDivisions(Division& division, int buttonStatesIndex, uint8_t currentState) {
 //        //TODO: what benefit are we gaining from currentState != buttonStates[buttonStatesIndex] if we alsio do the currentState == 0 check below
 //        if (currentState != buttonStates[buttonStatesIndex]) {
