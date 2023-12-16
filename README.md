@@ -1,131 +1,33 @@
 # Overview
 
 ```mermaid
-sequenceDiagram
-    participant ISR
-    participant ISR_FLAG
-    participant ButtonManager
-    participant Button
-    Note over ISR_FLAG: variable indicating interrupt CHANGE
-    Note over Button: Callback function for state change
-    ISR->>ISR_FLAG : set()
-    ISR_FLAG->>ButtonManager: notify()
-    activate ButtonManager
-    ButtonManager->>ButtonManager: debounceCheck()
-    alt debounceCheck passed
-
-        loop until debounceCheck
-            rect rgb(52, 235, 232)
-                ButtonManager->>Button: update()
-            end
-            
-        end
-        Button->>Button: triggerCallback()
-    end
-    deactivate ButtonManager
-
-```
-```mermaid
-sequenceDiagram
-    participant MainLoop
-    participant ISR
-    participant ButtonManager
-    participant Button
-
-    MainLoop->>+ButtonManager: setup()
-    loop Each Loop Cycle
-        MainLoop->>+ButtonManager: update()
-        alt Interrupt Occurred
-            ButtonManager->>+ISR: handleInterrupt()
-            ISR->>-ButtonManager: Set interruptOccurred flag
-            ButtonManager->>ButtonManager: Check interruptOccurred
-            loop For Each Button
-                ButtonManager->>+Button: update()
-                Button->>-ButtonManager: Update State (Press/Hold/Release)
-            end
-        end
-        ButtonManager->>-MainLoop: Manage Button States
-    end
-
-```
-```mermaid
 classDiagram
-    class MainLoop {
-        +setup()
-        +loop()
+    class Main {
     }
 
     class ISR {
-        +void handleInterrupt()
-    }
-
-    class ButtonManager {
-        -static volatile bool interruptOccurred
-        -std::vector~Button~ buttons
-        +void addButton(int pin, void (*callback)())
-        +void update()
-        +static void handleInterrupt()
     }
 
     class Button {
-        -uint8_t pin
-        -Button::State state
-        -unsigned long lastDebounceTime
-        +void update()
+    }
+    
+    class ProgramState {
+        
     }
 
-    MainLoop --> ButtonManager : uses
-    ButtonManager --> Button : manages
-    ISR --> ButtonManager : triggers
-    ButtonManager ..> ISR : calls
-
-    MainLoop : Executes main program logic
-    ISR : Called on external interrupt
-    ButtonManager : Manages multiple buttons
-    Button : Represents an individual button with state machine
-
-
-```
-```mermaid
-classDiagram
-    class ButtonManager {
-        +static bool interruptOccured
+    class TimerManager {
+        +ProgramState getProgramState()
     }
+
+    Main : Entry Point
+    ISR : Interrupt Service Routine
+    Button : State machine
+    TimerManager --> ProgramState : Referencess
+    
+
+
 ```
 
-```mermaid
-sequenceDiagram
-    Released->>DebouncePress: ISR FALL
-    DebouncePress->>Pressed: debounceDelay > MIN
-    Pressed->>HeldDown: holdDelay > MIN
-    HeldDown->>DebounceRelease: ISR RISE
-    Pressed->>DebounceRelease: ISR RISE
-    DebounceRelease->>Released: debounceDelay > MIN
-```
-```mermaid
-sequenceDiagram
-    Note over ISR: ISR PIN LOW
-    ISR->>ButtonManager: buttonChangeInterrupt()
-    activate ButtonManager
-    Note over ButtonManager: poll PORTD until holdDelayPassed()
-    ButtonManager->>ButtonManager: callUpdateOnChildButtons()
-    Note over ButtonManager: TODO: debounce?
-    deactivate ButtonManager
-    ButtonManager->>MainLoop: setPressed(true)
-    activate ButtonManager
-    activate MainLoop
-    MainLoop->>Button: activate()
-    activate Button
-    Button->>Button: progressStateMachine()
-    Button->>ButtonManager: broadCastStateChange()
-    deactivate Button
-    ButtonManager->>MainLoop: broadCastStateChange()
-    deactivate MainLoop
-    ButtonManager->>Menu: update()
-    deactivate ButtonManager
-    
-    
-```
 ```mermaid
 stateDiagram-v2
     classDef releasedStyle fill:#FAD9D5,color:black,font-weight:bold,stroke-width:2px;
@@ -149,7 +51,7 @@ stateDiagram-v2
     }
     
     state DebouncePress {
-        DebouncePressState: Verify Button Press 🕒
+        DebouncePressState: Verify Button Press
     }
     
     state Pressed {
@@ -157,10 +59,9 @@ stateDiagram-v2
     }
     
     state DebounceRelease {
-        DebounceReleaseState: Verify Button Release 🕒
+        DebounceReleaseState: Verify Button Release
     }
 
-    note left of DebouncePress : We haven't verified the press with debounce yet
  
 
 ```

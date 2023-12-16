@@ -4,7 +4,7 @@
 
 #ifndef CLK_BUTTON_H
 #define CLK_BUTTON_H
-
+#define BUTTON_COUNT 4
 #include <Arduino.h>
 #include "debug_utils.h"
 #include "stdio.h"
@@ -20,10 +20,14 @@ public:
         DebounceRelease
     };
 
-    Button(uint8_t p) : pin(p), state(State::Released), lastDebounceTime(0) {
-        pinMode(pin, INPUT);
-    }
+    Button(uint8_t p) : pin(p), state(State::Released), lastDebounceTime(0) {}
 
+    void setup() {
+        pinMode(pin, INPUT_PULLUP);
+        DEBUG_PRINT("[BUTTON][");
+        DEBUG_PRINT_VAR(pin);
+        DEBUG_PRINTLN("][SETUP]");
+    }
 
     uint8_t getPinValue() {
         switch (pin) {

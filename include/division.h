@@ -14,12 +14,14 @@ const int stepString[MAX_STEP] = {
 /* NOTE: endOfSteps[currentIndexInEndOfSteps] represents the WRAP AROUND POINT in the array  steps*/
 
 
-struct Division {
-    volatile int currentIndexInEndOfSteps = 2;
-    volatile int currentIndexInSteps = 0;
-
+class Division {
+    // TODO: probably don't need volatile
+    volatile uint8_t currentIndexInEndOfSteps = 2;
+    volatile uint8_t currentIndexInSteps = 0;
+    uint8_t pin;
 
 public:
+    Division(uint8_t pin) : pin(pin){}
     uint16_t steps = 0b0000000000000001;
     int endOfSteps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
@@ -30,6 +32,10 @@ public:
 
     void setDivision(int division) {
         currentIndexInEndOfSteps = division - 1;
+    }
+
+    void setup() {
+        pinMode(pin, OUTPUT);
     }
 
     int tick() {

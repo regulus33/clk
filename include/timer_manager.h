@@ -1,66 +1,38 @@
 //
 // Created by zack on 9/3/23.
 //
-#ifndef MY_CLOCK_DIVIDER_H
-#define MY_CLOCK_DIVIDER_H
-#define POT_DEADZONE 20
-#define LAST_ADC_VALUE 120
+#ifndef CLK_TIMER_MANAGER_H
+#define CLK_TIMER_MANAGER_H
 
 #include <TimerOne.h>
 #include <Arduino.h>
-
+#include "program_state.h"
 #include "clock_manager.h"
 #include "ram_service.h"
+#include "debug_utils.h"
+#include "knob.h"
 
 class TimerManager {
 public:
-    long intervalMicroSeconds;
-    unsigned int bpm;
-    unsigned int lastAdcValue = LAST_ADC_VALUE;
-    byte ppqn;
-    void (*clockPulseInterrupt)();
-    ClockManager clockManager;
-    explicit TimerManager(float initialBPM = 120, byte initialPPQN = 24, void (*clockPulseInterrupt)() = nullptr):
-            intervalMicroSeconds(calculateIntervalMicroSecs()),
-            bpm(initialBPM),
-            ppqn(initialPPQN),
-            clockPulseInterrupt(clockPulseInterrupt)
-    {}
-    // Timer interrupt for clock pulse (to be implemented)
-
-    // Initialize Timer and ADC
-    void begin() {
-        Timer1.initialize(intervalMicroSeconds);
-        Timer1.attachInterrupt(clockPulseInterrupt);
-
-        // Initialize ADC for A0
-        ADMUX |= (1 << REFS0); // Set reference voltage to AVCC
-        ADMUX &= ~(1 << MUX0); // Clear MUX0 to select channel 0 (A0)
-        ADCSRA |= (1 << ADEN); // Enable ADC
+   static void setup(uint16_t interval_microseconds,  void (*pulse_callback)()) {
+        Timer1.initialize(interval_microseconds);
+        Timer1.attachInterrupt(pulse_callback);
+        DEBUG_PRINTLN("[TIMER_MANAGER][SETUP]");
     }
 
-    // Calculate BPM from A0
-    void updateBPMFromA0() {
-        ADCSRA |= (1 << ADSC); // Start ADC conversion
-        while (ADCSRA & (1 << ADSC)); // Wait for conversion to complete
-        uint16_t adcValue = ADCL | (ADCH << 8); // Read ADC value
-        // If ADC value changed significantly (i.e. not jitter)
-        if(adcValue - lastAdcValue > POT_DEADZONE) {
-            // Convert ADC value to BPM
-            bpm = map(adcValue, 0, 1023, 180, 50);
-            // Change timer frequency
-            Timer1.setPeriod(calculateIntervalMicroSecs());
-            lastAdcValue = adcValue;
-        }
-
-    }
-
-
-
-    // Calculate interval in microseconds based on BPM and PPQN
-    long calculateIntervalMicroSecs() {
+    static uint16_t convert_adc_read_to_bpm(uint16_t knob_read) {
+        return map(knob_read, 0, 1023, 180, 50);
+   }
+    // Calculate interval in microseconds based on state.bpm and state.ppqn
+    static int32_t get_timer_interval_microseconds(uint8_t bpm, uint8_t ppqn) {
         return 60L * 1000 * 1000 / bpm / ppqn;
     }
+
+    static void update_timer1_interval(int32_t timer_interval_microseconds) {
+        Timer1.setPeriod(timer_interval_microseconds);
+    }
+
+
 };
 
-#endif // MY_CLOCK_DIVIDER_H
+#endif // CLK_TIMER_MANAGER_H

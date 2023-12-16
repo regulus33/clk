@@ -3,13 +3,24 @@
 //
 #ifndef CLK_CLOCK_MANAGER_H
 #define CLK_CLOCK_MANAGER_H
+#include "debug_utils.h"
 
 struct ClockManager {
 public:
-    Division division1;
-    Division division2;
-    Division division3;
-    Division division4;
+    ClockManager() {}
+
+    Division division1 = Division(8);
+    Division division2 = Division(9);
+    Division division3 = Division(10);
+    Division division4 = Division(11);
+
+    void setup() {
+        division1.setup();
+        division2.setup();
+        division3.setup();
+        division4.setup();
+        DEBUG_PRINTLN("[CLOCK_MANAGER][SETUP]");
+    }
 
     void tick() {
         // Clear all bits first

@@ -1,22 +1,19 @@
 #include "Arduino.h"
 #include "division.h"
 #include "clock_manager.h"
-#include "dummy_test_clock.h"
 #include "timer_manager.h"
 #include "oled_display.h"
 #include "button.h"
-
+#define INITIAL_INTERVAL 1000
 /* Global instances */
-
+ProgramState state;
 ClockManager clockManager;
+//TODO: pulse received should be in ProgramState
 int pulseReceived = 0;
-
-void clockPulseInterrupt() { pulseReceived = 1; };
-TimerManager timerManager(30, 24, clockPulseInterrupt);
 OledDisplay display;
-unsigned int lastBpm = 120;
+Knob knob = Knob(state);
+void pulse_callback() { pulseReceived = 1; };
 
-uint8_t lastPortDState = PIND & B11110000; // Initialize lastPortState
 Button buttons[4] = {
         Button(7),
         Button(6),
@@ -25,30 +22,21 @@ Button buttons[4] = {
 };
 
 void setup() {
-#ifdef DEBUG
-    RamService::printMemoryUsage();
-#endif
-    pinMode(8, OUTPUT);
-    pinMode(9, OUTPUT);
-    pinMode(10, OUTPUT);
-    pinMode(11, OUTPUT);
-    pinMode(A0, INPUT);
-    pinMode(7, INPUT_PULLUP);
-    pinMode(6, INPUT_PULLUP);
-    pinMode(5, INPUT_PULLUP);
-    pinMode(4, INPUT_PULLUP);
+    DEBUG_SETUP;
     display.setup();
-//    ButtonManager::setup();
-#ifdef DEBUG
-    Serial.begin(9600);
-    Serial.println(F("[MAIN][SETUP] - init display"));
-    RamService::printMemoryUsage();
-#endif
-    timerManager.begin();
+    clockManager.setup();
+    knob.setup();
+    for (int i = 0; i < BUTTON_COUNT; i++) {
+        buttons[i].setup();
+    }
+    TimerManager::setup(INITIAL_INTERVAL, pulse_callback);
+    state.set_bpm(120);
+    DEBUG_MEMPRINT;
 }
 
 void loop() {
     if (pulseReceived == 1) {
+        DEBUG_PRINTLN("[MAIN][LOOP][PULSE_RECEIVED]");
         clockManager.tick();
         pulseReceived = 0;
     }
@@ -58,15 +46,15 @@ void loop() {
     buttons[2].update();
     buttons[3].update();
 
-    timerManager.updateBPMFromA0();
-    if (timerManager.bpm != lastBpm) {
-#ifdef DEBUG
-        Serial.print(F("[MAIN][LOOP] - pot value changed, printing: "));
-        Serial.print(timerManager.bpm);
-        Serial.println(F(""));
-#endif
-
-        display.printLine(timerManager.bpm, BPM);
-        lastBpm = timerManager.bpm;
+    state.set_bpm(TimerManager::convert_adc_read_to_bpm(knob.get_value()));
+    if (state.bpm_changed() || state.ppqn_changed()) {
+        DEBUG_PRINTLN("[MAIN][LOOP][BPM_OR_PPQN_CHANGED]");
+        uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
+                state.get_bpm(),
+                state.get_pqn()
+                );
+        TimerManager::update_timer1_interval(timer_interval);
+        display.printLine(state.get_bpm(), BPM);
     }
 }
+
