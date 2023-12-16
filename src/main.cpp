@@ -10,8 +10,6 @@ ProgramState state;
 ClockManager clockManager;
 //TODO: pulse received should be in ProgramState
 int pulseReceived = 0;
-OledDisplay display;
-Knob knob = Knob(state);
 void pulse_callback() { pulseReceived = 1; };
 
 Button buttons[4] = {
@@ -23,9 +21,9 @@ Button buttons[4] = {
 
 void setup() {
     DEBUG_SETUP;
-    display.setup();
+    OledDisplay::setup();
     clockManager.setup();
-    knob.setup();
+    Knob::setup();
     for (int i = 0; i < BUTTON_COUNT; i++) {
         buttons[i].setup();
     }
@@ -36,7 +34,6 @@ void setup() {
 
 void loop() {
     if (pulseReceived == 1) {
-        DEBUG_PRINTLN("[MAIN][LOOP][PULSE_RECEIVED]");
         clockManager.tick();
         pulseReceived = 0;
     }
@@ -46,7 +43,7 @@ void loop() {
     buttons[2].update();
     buttons[3].update();
 
-    state.set_bpm(TimerManager::convert_adc_read_to_bpm(knob.get_value()));
+    state.set_bpm(TimerManager::convert_adc_read_to_bpm(Knob::get_value()));
     if (state.bpm_changed() || state.ppqn_changed()) {
         DEBUG_PRINTLN("[MAIN][LOOP][BPM_OR_PPQN_CHANGED]");
         uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
@@ -54,7 +51,7 @@ void loop() {
                 state.get_pqn()
                 );
         TimerManager::update_timer1_interval(timer_interval);
-        display.printLine(state.get_bpm(), BPM);
+        OledDisplay::print_line(state.get_bpm(), BPM);
     }
 }
 
