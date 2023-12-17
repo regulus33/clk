@@ -19,7 +19,17 @@ public:
     void set_ppqn(uint8_t new_ppqn) { last_bpm = ppqn; ppqn = new_ppqn;}
     uint8_t get_pqn() const { return ppqn;}
     bool ppqn_changed() const { return ppqn != last_ppqn;}
-    /* end TimerManager */
+    /* END TimerManager */
+
+    /* PULSE */
+    void set_pulse_received(uint8_t p) {
+        pulse_received = p;
+    }
+
+    uint8_t get_pulse_received() {
+        return pulse_received;
+    }
+    /* END PULSE */
 
 private:
 
@@ -28,7 +38,11 @@ private:
     uint8_t last_bpm = 1;
     uint8_t ppqn = 24;
     uint8_t last_ppqn = 24;
-    /* end TimerManager */
+    /* END TimerManager */
+
+    /* PULSE */
+    uint8_t pulse_received = 0;
+    /* END PULSE */
 };
 
 

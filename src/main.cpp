@@ -9,8 +9,7 @@
 ProgramState state;
 ClockManager clockManager;
 //TODO: pulse received should be in ProgramState
-int pulseReceived = 0;
-void pulse_callback() { pulseReceived = 1; };
+void pulse_callback() { state.set_pulse_received(1); };
 
 Button buttons[4] = {
         Button(7),
@@ -33,9 +32,9 @@ void setup() {
 }
 
 void loop() {
-    if (pulseReceived == 1) {
+    if (state.get_pulse_received() == 1) {
         clockManager.tick();
-        pulseReceived = 0;
+        state.set_pulse_received(0);
     }
 
     buttons[0].update();
