@@ -1,7 +1,3 @@
-//
-// Created by zachary rowden on 14.12.2023.
-//
-
 #ifndef CLK_PROGRAM_STATE_H
 #define CLK_PROGRAM_STATE_H
 #define DIV1_PIN 8

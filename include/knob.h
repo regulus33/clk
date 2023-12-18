@@ -1,15 +1,8 @@
-//
-// Created by zachary rowden on 15.12.2023.
-//
-
 #ifndef CLK_KNOB_H
 #define CLK_KNOB_H
-
-#include <Arduino.h>
-
 #define POT_DEADZONE 20
 #define LAST_ADC_VALUE 120
-
+#include <Arduino.h>
 
 class Knob {
 public:

@@ -1,15 +1,7 @@
-//
-// Created by zack on 9/3/23.
-//
 #ifndef OLED_DISPLAY_H
 #define OLED_DISPLAY_H
-
 #include <U8x8lib.h>
 #include <Wire.h>
-
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
-#define I2C_ADDRESS 0x3C
 
 enum PrintType {
     BPM,
@@ -53,6 +45,4 @@ public:
 };
 
 U8X8_SSD1306_128X64_NONAME_HW_I2C OledDisplay::u8x8 = U8X8_SSD1306_128X64_NONAME_HW_I2C();  // Initialize static OLED object
-
-
 #endif //OLED_DISPLAY_H

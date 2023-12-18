@@ -1,13 +1,8 @@
-//
-// Created by zack on 9/3/23.
-//
 #ifndef CLK_TIMER_MANAGER_H
 #define CLK_TIMER_MANAGER_H
-
 #include <TimerOne.h>
 #include <Arduino.h>
 #include "program_state.h"
-#include "clock_manager.h"
 #include "ram_service.h"
 #include "debug_utils.h"
 #include "knob.h"
@@ -35,5 +30,4 @@ public:
 
 
 };
-
 #endif // CLK_TIMER_MANAGER_H

@@ -1,7 +1,3 @@
-//
-// Created by zachary rowden on 09.12.2023.
-//
-
 #ifndef CLK_DEBUG_UTILS_H
 #define CLK_DEBUG_UTILS_H
 #include "ram_service.h"
@@ -24,9 +20,5 @@
 #define DEBUG_SETUP
 #define DEBUG_MEMPRINT
 #endif
-
-
-
-
 #endif // CLK_DEBUG_UTILS_H
 

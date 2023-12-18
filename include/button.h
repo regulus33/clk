@@ -64,7 +64,6 @@ public:
                         state = State::Released;
                     }
                 }
-
                 break;
             case State::Pressed:
                 if (pinValue == 1) {
