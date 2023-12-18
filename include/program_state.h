@@ -8,7 +8,6 @@
 #define DIV2_PIN 9
 #define DIV3_PIN 10
 #define DIV4_PIN 11
-
 #include <stdint-gcc.h>
 
 class ProgramState {
@@ -42,7 +41,12 @@ public:
     }
     /* END TimerManager */
 
-    /* Pulse */
+    /*
+     *
+     * Pulse
+     *
+     */
+
     void set_pulse_received(uint8_t p) {
         pulse_received = p;
     }
@@ -50,9 +54,16 @@ public:
     uint8_t get_pulse_received() {
         return pulse_received;
     }
-    /* END Pulse */
 
-    /* Division */
+    /*
+     *
+     * Division
+     *
+     */
+
+    /*
+     * 1
+     */
     uint16_t& get_div1_steps() {
         return div1_steps;
     }
@@ -77,16 +88,86 @@ public:
         return div1_index_end_of_steps = index;
     }
 
-    uint8_t get_div1_pin() {
-        return div1_pin;
+    /*
+    * 2
+    */
+    uint16_t& get_div2_steps() {
+        return div2_steps;
     }
 
-//    uint16_t div1_steps = 0b0000000000000001;
-//    volatile uint8_t div1_index_end_of_steps = 2;
-//    volatile uint8_t div1_index_steps = 0;
-//    const uint8_t div1_pin = DIV1_PIN;
-    /* END Division */
+    void set_div2_steps(uint16_t steps) {
+        div2_steps = steps;
+    }
 
+    volatile uint8_t& get_div2_index_end_of_steps() {
+        return div2_index_end_of_steps;
+    }
+
+    void set_div2_index_end_of_steps(uint8_t index) {
+        div2_index_end_of_steps = index;
+    }
+
+    volatile uint8_t& get_div2_index_steps() {
+        return div2_index_steps;
+    }
+
+    volatile uint8_t set_div2_index_steps(uint8_t index) {
+        return div2_index_end_of_steps = index;
+    }
+
+    /*
+    * 3
+    */
+    uint16_t& get_div3_steps() {
+        return div3_steps;
+    }
+
+    void set_div3_steps(uint16_t steps) {
+        div3_steps = steps;
+    }
+
+    volatile uint8_t& get_div3_index_end_of_steps() {
+        return div3_index_end_of_steps;
+    }
+
+    void set_div3_index_end_of_steps(uint8_t index) {
+        div3_index_end_of_steps = index;
+    }
+
+    volatile uint8_t& get_div3_index_steps() {
+        return div3_index_steps;
+    }
+
+    volatile uint8_t set_div3_index_steps(uint8_t index) {
+        return div3_index_end_of_steps = index;
+    }
+
+    /*
+    * 4
+    */
+    uint16_t& get_div4_steps() {
+        return div4_steps;
+    }
+
+    void set_div4_steps(uint16_t steps) {
+        div4_steps = steps;
+    }
+
+    volatile uint8_t& get_div4_index_end_of_steps() {
+        return div4_index_end_of_steps;
+    }
+
+    void set_div4_index_end_of_steps(uint8_t index) {
+        div4_index_end_of_steps = index;
+    }
+
+    volatile uint8_t& get_div4_index_steps() {
+        return div4_index_steps;
+    }
+
+    volatile uint8_t set_div4_index_steps(uint8_t index) {
+        return div4_index_end_of_steps = index;
+    }
 
 private:
 
@@ -103,24 +184,20 @@ private:
 
     /* Division */
     uint16_t div1_steps = 0b0000000000000001;
-    volatile uint8_t div1_index_end_of_steps = 7;
+    volatile uint8_t div1_index_end_of_steps = 2;
     volatile uint8_t div1_index_steps = 0;
-    const uint8_t div1_pin = DIV1_PIN;
 
     uint16_t div2_steps = 0b0000000000000001;
     volatile uint8_t div2_index_end_of_steps = 2;
     volatile uint8_t div2_index_steps = 0;
-    const uint8_t div2_pin = DIV2_PIN;
 
     uint16_t div3_steps = 0b0000000000000001;
     volatile uint8_t div3_index_end_of_steps = 2;
     volatile uint8_t div3_index_steps = 0;
-    const uint8_t div3_pin = DIV3_PIN;
 
     uint16_t div4_steps = 0b0000000000000001;
     volatile uint8_t div4_index_end_of_steps = 2;
     volatile uint8_t div4_index_steps = 0;
-    const uint8_t div4_pin = DIV4_PIN;
     /* END Division */
 };
 

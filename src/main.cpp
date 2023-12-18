@@ -36,16 +36,25 @@ void setup() {
 
 void loop() {
     if (state.get_pulse_received() == 1) {
+        /* CLEAR BITS IN PORTB REGISTER */
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
 
-        if (Division::tick(
-                state.get_div1_steps(),
-                state.get_div1_index_steps(),
-                state.get_div1_index_end_of_steps()
-        )) {
-            DEBUG_PRINTLN("tick");
+        if (Division::tick(state.get_div1_steps(),state.get_div1_index_steps(),state.get_div1_index_end_of_steps())) {
             PORTB |= (1 << PORTB0);
         }
+
+        if (Division::tick(state.get_div2_steps(),state.get_div2_index_steps(),state.get_div2_index_end_of_steps())) {
+            PORTB |= (1 << PORTB1);
+        }
+
+        if (Division::tick(state.get_div3_steps(),state.get_div3_index_steps(),state.get_div3_index_end_of_steps())) {
+            PORTB |= (1 << PORTB2);
+        }
+
+        if (Division::tick(state.get_div4_steps(),state.get_div4_index_steps(),state.get_div4_index_end_of_steps())) {
+            PORTB |= (1 << PORTB3);
+        }
+
         state.set_pulse_received(0);
     }
 
