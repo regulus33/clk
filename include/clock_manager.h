@@ -23,14 +23,14 @@ public:
     }
 
     void tick() {
-        // Clear all bits first
-        PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
-
-        // set various bits corresponding to the tick() state
-        if (division1.tick()) PORTB |= (1 << PORTB0);
-        if (division2.tick()) PORTB |= (1 << PORTB1);
-        if (division3.tick()) PORTB |= (1 << PORTB2);
-        if (division4.tick()) PORTB |= (1 << PORTB3);
+//        // Clear all bits first
+//        PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
+//
+//        // set various bits corresponding to the tick() state
+//        if (division1.tick()) PORTB |= (1 << PORTB0);
+//        if (division2.tick()) PORTB |= (1 << PORTB1);
+//        if (division3.tick()) PORTB |= (1 << PORTB2);
+//        if (division4.tick()) PORTB |= (1 << PORTB3);
     }
 };
 
