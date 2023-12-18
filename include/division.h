@@ -3,9 +3,10 @@
 #define MAX_STEP_INDEX 16
 #define MAX_STEP 16
 #include "program_state.h"
+#include "divider_state.h"
 #include "debug_utils.h"
 
-static const uint8_t end_of_steps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+static const uint8_t endOfSteps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 static const int stepString[MAX_STEP] = {
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 };
@@ -29,12 +30,13 @@ public:
     }
 
 
-    static uint8_t tick(volatile uint16_t &steps, volatile uint8_t &index_steps, volatile uint8_t &index_end_of_steps) {
-        uint16_t mask = 1 << index_steps;
-        int tick = (steps & mask) >> index_steps;
-        index_steps = (index_steps + 1) % end_of_steps[index_end_of_steps];
-        DEBUG_PRINTLN_VAR(index_steps);
+    static uint8_t tick(DividerState& dividerState) {
+        uint16_t mask = 1 << dividerState.indexSteps;
+        int tick = (dividerState.steps & mask) >> dividerState.indexSteps;
+        dividerState.indexSteps = (dividerState.indexSteps + 1) % endOfSteps[dividerState.indexEndOfSteps];
+        DEBUG_PRINTLN_VAR(dividerState.indexSteps);
         return tick;
     }
+
 };
 #endif //CLK_DIVISION_H

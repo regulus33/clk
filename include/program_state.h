@@ -1,120 +1,69 @@
 #ifndef CLK_PROGRAM_STATE_H
 #define CLK_PROGRAM_STATE_H
-#define DIV1_PIN 8
-#define DIV2_PIN 9
-#define DIV3_PIN 10
-#define DIV4_PIN 11
-#define INIT_DIV_STEPS 0b0000000000000001
-#define INIT_DIV_END_STEPS 2
-#define INIT_INDEX_STEPS 0
+#include "debug_utils.h"
 #include <stdint-gcc.h>
+#include "divider_state.h"
+
+
+constexpr uint8_t DIV1_PIN = 8;
+constexpr uint8_t DIV2_PIN = 9;
+constexpr uint8_t DIV3_PIN = 10;
+constexpr uint8_t DIV4_PIN = 11;
+constexpr uint8_t MAX_DIVIDERS = 4;
 
 class ProgramState {
 private:
-    /* CLOCK-----------------------------*/
+    /* CLOCK */
     uint8_t bpm = 1;
-    uint8_t last_bpm = 1;
+    uint8_t lastBpm = 1;
     uint8_t ppqn = 24;
-    uint8_t last_ppqn = 24;
+    uint8_t lastPpqn = 24;
 
-    /* PULSE ISR-FLAG--------------------*/
-    uint8_t pulse_received = 0;
+    /* PULSE ISR-FLAG */
+    uint8_t pulseReceived = 0;
 
-    /* DIVISION | OUTPUT----------------*/
-    /* 1------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t div1_steps = INIT_DIV_STEPS;
-    volatile uint8_t div1_index_end_of_steps = INIT_DIV_END_STEPS;
-    volatile uint8_t div1_index_steps = INIT_INDEX_STEPS;
-    /* 2------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t div2_steps = INIT_DIV_STEPS;
-    volatile uint8_t div2_index_end_of_steps = INIT_DIV_END_STEPS;
-    volatile uint8_t div2_index_steps = INIT_INDEX_STEPS;
-    /* 3------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t div3_steps = INIT_DIV_STEPS;
-    volatile uint8_t div3_index_end_of_steps = INIT_DIV_END_STEPS;
-    volatile uint8_t div3_index_steps = INIT_INDEX_STEPS;
-    /* 4------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t div4_steps = INIT_DIV_STEPS;
-    volatile uint8_t div4_index_end_of_steps = INIT_DIV_END_STEPS;
-    volatile uint8_t div4_index_steps = INIT_INDEX_STEPS;
+    /* DIVISION | OUTPUT */
+    DividerState dividers[4]; // Array of 4 dividers
+
 public:
-    /* CLOCK-----------------------------*/
-    void set_bpm(uint8_t new_bpm) {
-        last_bpm = bpm;
-        bpm = new_bpm;
+    ProgramState() : dividers{
+            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
+            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
+            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
+            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
+    } {}
+
+    /* CLOCK Methods */
+    void setBpm(uint8_t newBpm) {
+        lastBpm = bpm;
+        bpm = newBpm;
     }
 
-    uint8_t get_bpm() const { return bpm; }
+    uint8_t getBpm() const { return bpm; }
 
-    bool bpm_changed() const { return bpm != last_bpm; }
+    bool bpmChanged() const { return bpm != lastBpm; }
 
-    void set_ppqn(uint8_t new_ppqn) {
-        last_bpm = ppqn;
-        ppqn = new_ppqn;
+    void setPpqn(uint8_t newPpqn) {
+        lastBpm = ppqn;
+        ppqn = newPpqn;
     }
 
-    uint8_t get_pqn() const { return ppqn; }
+    uint8_t getPpqn() const { return ppqn; }
 
-    bool ppqn_changed() const { return ppqn != last_ppqn; }
+    bool ppqnChanged() const { return ppqn != lastPpqn; }
 
-    /* PULSE ISR-FLAG--------------------*/
-    void set_pulse_received(uint8_t p) { pulse_received = p; }
+    /* PULSE ISR-FLAG Methods */
+    void setPulseReceived(uint8_t p) { pulseReceived = p; }
 
-    uint8_t get_pulse_received() { return pulse_received; }
+    uint8_t getPulseReceived() const { return pulseReceived; }
 
-    /* DIVISION | OUTPUT----------------*/
-    /* 1------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t &get_div1_steps() { return div1_steps; }
-
-    void set_div1_steps(uint16_t steps) { div1_steps = steps; }
-
-    volatile uint8_t &get_div1_index_end_of_steps() { return div1_index_end_of_steps; }
-
-    void set_div1_index_end_of_steps(uint8_t index) { div1_index_end_of_steps = index; }
-
-    volatile uint8_t &get_div1_index_steps() { return div1_index_steps; }
-
-    volatile uint8_t set_div1_index_steps(uint8_t index) { return div1_index_end_of_steps = index; }
-
-    /* 2------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t &get_div2_steps() { return div2_steps; }
-
-    void set_div2_steps(uint16_t steps) { div2_steps = steps; }
-
-    volatile uint8_t &get_div2_index_end_of_steps() { return div2_index_end_of_steps; }
-
-    void set_div2_index_end_of_steps(uint8_t index) { div2_index_end_of_steps = index; }
-
-    volatile uint8_t &get_div2_index_steps() { return div2_index_steps; }
-
-    volatile uint8_t set_div2_index_steps(uint8_t index) { return div2_index_end_of_steps = index; }
-
-    /* 3------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t &get_div3_steps() { return div3_steps; }
-
-    void set_div3_steps(uint16_t steps) { div3_steps = steps; }
-
-    volatile uint8_t &get_div3_index_end_of_steps() { return div3_index_end_of_steps; }
-
-    void set_div3_index_end_of_steps(uint8_t index) { div3_index_end_of_steps = index; }
-
-    volatile uint8_t &get_div3_index_steps() { return div3_index_steps; }
-
-    volatile uint8_t set_div3_index_steps(uint8_t index) { return div3_index_end_of_steps = index; }
-
-    /* 4------OUTPUT-GETTERS & SETTERS-*/
-    uint16_t &get_div4_steps() { return div4_steps; }
-
-    void set_div4_steps(uint16_t steps) { div4_steps = steps; }
-
-    volatile uint8_t &get_div4_index_end_of_steps() { return div4_index_end_of_steps; }
-
-    void set_div4_index_end_of_steps(uint8_t index) { div4_index_end_of_steps = index; }
-
-    volatile uint8_t &get_div4_index_steps() { return div4_index_steps; }
-
-    volatile uint8_t set_div4_index_steps(uint8_t index) { return div4_index_end_of_steps = index; }
+    // Accessors for Divider States
+    DividerState &getDivider(uint8_t index) {
+        if (index >= MAX_DIVIDERS) {
+            DEBUG_PRINTLN("[PROGRAM_STATE] - Div index out of bounds");
+        }
+        return dividers[index];
+    }
 };
-
 
 #endif //CLK_PROGRAM_STATE_H

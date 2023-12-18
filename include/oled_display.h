@@ -20,7 +20,7 @@ public:
         DEBUG_PRINTLN("[OLED_DISPLAY][SETUP]");
     }
 
-    static void print_line(uint8_t value, PrintType print_type = BPM) {
+    static void printLine(uint8_t value, PrintType print_type = BPM) {
         char char_buffer[17];
 
         switch (print_type) {
@@ -35,11 +35,11 @@ public:
                 break;
         }
 
-        print_line(char_buffer, print_type);
+        printLine(char_buffer, print_type);
 
     }
 
-    static void print_line(char* char_buffer, PrintType print_type = BPM) {
+    static void printLine(char* char_buffer, PrintType print_type = BPM) {
         u8x8.draw2x2String(0, 3, char_buffer);
     }
 };

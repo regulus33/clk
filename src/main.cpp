@@ -3,10 +3,11 @@
 #include "timer_manager.h"
 #include "oled_display.h"
 #include "button.h"
+#include "program_state.h"
 #define INITIAL_INTERVAL 1000
 
 ProgramState state;
-void pulse_callback() { state.set_pulse_received(1); };
+void pulse_callback() { state.setPulseReceived(1); };
 Button buttons[4] = {Button(7),Button(6),Button(5),Button(4) };
 
 void setup() {
@@ -16,32 +17,32 @@ void setup() {
     for (int i = 0; i < BUTTON_COUNT; i++) { buttons[i].setup();}
     TimerManager::setup(INITIAL_INTERVAL, pulse_callback);
     Division::setup();
-    state.set_bpm(120);
+    state.setBpm(120);
     DEBUG_MEMPRINT;
 }
 
 void loop() {
-    if (state.get_pulse_received() == 1) {
+    if (state.getPulseReceived() == 1) {
         /* CLEAR BITS IN PORTB REGISTER */
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
 
-        if (Division::tick(state.get_div1_steps(), state.get_div1_index_steps(), state.get_div1_index_end_of_steps())) {
+        if (Division::tick(state.getDivider(0))) {
             PORTB |= (1 << PORTB0);
         }
 
-        if (Division::tick(state.get_div2_steps(), state.get_div2_index_steps(), state.get_div2_index_end_of_steps())) {
+        if (Division::tick(state.getDivider(1))) {
             PORTB |= (1 << PORTB1);
         }
 
-        if (Division::tick(state.get_div3_steps(), state.get_div3_index_steps(), state.get_div3_index_end_of_steps())) {
+        if (Division::tick(state.getDivider(2))) {
             PORTB |= (1 << PORTB2);
         }
 
-        if (Division::tick(state.get_div4_steps(), state.get_div4_index_steps(), state.get_div4_index_end_of_steps())) {
+        if (Division::tick(state.getDivider(3))) {
             PORTB |= (1 << PORTB3);
         }
 
-        state.set_pulse_received(0);
+        state.setPulseReceived(0);
     }
 
     buttons[0].update();
@@ -49,14 +50,14 @@ void loop() {
     buttons[2].update();
     buttons[3].update();
 
-    state.set_bpm(TimerManager::convert_adc_read_to_bpm(Knob::get_value()));
-    if (state.bpm_changed() || state.ppqn_changed()) {
+    state.setBpm(TimerManager::convert_adc_read_to_bpm(Knob::get_value()));
+    if (state.bpmChanged() || state.ppqnChanged()) {
         uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
-                state.get_bpm(),
-                state.get_pqn()
+                state.getBpm(),
+                state.getPpqn()
         );
         TimerManager::update_timer1_interval(timer_interval);
-        OledDisplay::print_line(state.get_bpm(), BPM);
+        OledDisplay::printLine(state.getBpm(), BPM);
     }
 }
 
