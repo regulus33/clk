@@ -131,14 +131,14 @@ private:
     }
 
 //    TODO:
-//    void readButtonPulseAndUpdateDivisions(Division& division, int buttonStatesIndex, uint8_t currentState) {
+//    void readButtonPulseAndUpdateDivisions(Division& test_division, int buttonStatesIndex, uint8_t currentState) {
 //        //TODO: what benefit are we gaining from currentState != buttonStates[buttonStatesIndex] if we alsio do the currentState == 0 check below
 //        if (currentState != buttonStates[buttonStatesIndex]) {
 //            buttonStates[buttonStatesIndex] = currentState;
 //            unsigned long currentTime = millis();
 //            //TODO: or maybe a better question, why do we need to ask currentState == 0 if we already know that the state has changed? i.e. currentState != buttonStates[buttonStatesIndex] this feels like a bandaid
 //            if (currentTime - buttonLastChanged[buttonStatesIndex] > DEBOUNCE_DELAY && currentState == 0) {
-//                oledDisplay.printLine(division.incrementDiv(), Div);
+//                oledDisplay.printLine(test_division.incrementDiv(), Div);
 //                buttonLastChanged[buttonStatesIndex] = currentTime;
 //            }
 //
