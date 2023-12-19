@@ -4,23 +4,20 @@
 
 void test_basic_tick_behavior() {
     DividerState dividerState = {0b0000000000000001, 15, 0}; // Initial state
-    bool tickResult = Division::tick(dividerState);
-    TEST_ASSERT_TRUE(tickResult); // First tick should be true
-    tickResult = Division::tick(dividerState);
-    for(int i = 0; i < 14; i++) {
-        tickResult = Division::tick(dividerState);
-        TEST_ASSERT_FALSE(tickResult); // Subsequent tick should be false
+    TEST_ASSERT_TRUE(Division::tick(dividerState)); // First tick should be true
+    for(int i = 0; i < 15; i++) {
+        TEST_ASSERT_FALSE(Division::tick(dividerState));
     }
-    tickResult = Division::tick(dividerState);
-    TEST_ASSERT_TRUE(tickResult); // Subsequent tick should be false
-
-    // Add more assertions for full loop
+    TEST_ASSERT_TRUE(Division::tick(dividerState)); // Looped back around
 }
 
 void test_different_divider_configurations() {
-    // Example: Divider by 3
-    DividerState dividerState3 = {0b0000000000000100, 3, 3};
-    // Add assertions to check the pattern of true and false for division by 3
+    DividerState dividerState = {0b0000000000000001, 4, 0};
+    TEST_ASSERT_TRUE(Division::tick(dividerState));
+    for(int i = 0; i < 3; i++) {
+        TEST_ASSERT_FALSE(Division::tick(dividerState));
+    }
+    TEST_ASSERT_TRUE(Division::tick(dividerState));
 }
 
 void test_boundary_conditions() {
