@@ -50,7 +50,7 @@ void loop() {
     buttons[2].update();
     buttons[3].update();
 
-    state.setBpm(TimerManager::convert_adc_read_to_bpm(Knob::get_value()));
+    state.setBpm(TimerManager::convert_adc_read_to_bpm(Knob::getValue()));
     if (state.bpmChanged() || state.ppqnChanged()) {
         uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
                 state.getBpm(),

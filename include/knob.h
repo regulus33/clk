@@ -1,30 +1,38 @@
 #ifndef CLK_KNOB_H
 #define CLK_KNOB_H
-#define POT_DEADZONE 20
-#define LAST_ADC_VALUE 120
+constexpr  uint16_t POT_DEADZONE = 20;
+constexpr uint16_t LAST_ADC_VALUE = 120;
 #include <Arduino.h>
+#include "debug_utils.h"
 
 class Knob {
 public:
     static void setup() {
-        init_ADC();
+        initAdc();
         last_adc_value = LAST_ADC_VALUE;
         DEBUG_PRINTLN("[KNOB][SETUP]");
     }
 
-    static uint16_t get_value() {
+#ifdef TEST_BUILD
+    static uint16_t getValue(uint16_t mockRead) {
+# else
+    static uint16_t getValue() {
+#endif
         ADCSRA |= (1 << ADSC); // Start ADC conversion
         while (ADCSRA & (1 << ADSC)); // Wait for conversion to complete
-        /* TODO: may casue problems down from uint16_t */
-        uint16_t adc_val = ADCL | (ADCH << 8); // Read ADC value
+#ifdef TEST_BUILD
+        uint16_t adcVal = mockRead;
+#else
+        uint16_t adcVal = ADCL | (ADCH << 8); // Read ADC value
+#endif
         // If ADC value changed significantly (i.e. not jitter)
-        if (abs(adc_val - last_adc_value) > POT_DEADZONE) {
+        if (abs(adcVal - last_adc_value) > POT_DEADZONE) {
             DEBUG_PRINT("[KNOB][ADC_VALUES] - ");
-            DEBUG_PRINT_VAR(adc_val);
+            DEBUG_PRINT_VAR(adcVal);
             DEBUG_PRINT(" and ");
-            DEBUG_PRINTLN_VAR(adc_val);
-            last_adc_value = adc_val;
-            return adc_val;
+            DEBUG_PRINTLN_VAR(adcVal);
+            last_adc_value = adcVal;
+            return adcVal;
         }
         return last_adc_value;
     }
@@ -32,10 +40,7 @@ public:
 private:
     static uint16_t last_adc_value;  // Static variable
 
-    static void init_ADC() {
-        // TODO: is this necessary?
-        pinMode(A0, INPUT);
-
+    static void initAdc() {
         // Initialize ADC for A0
         ADMUX |= (1 << REFS0); // Set reference voltage to AVCC
         ADMUX &= ~(1 << MUX0); // Clear MUX0 to select channel 0 (A0)
