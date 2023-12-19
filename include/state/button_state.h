@@ -24,22 +24,33 @@ struct ButtonState {
     const unsigned long debounceDelay = 50;
     unsigned long lastHoldTime{};
     const unsigned long holdDelay = 1000;
+#ifdef TEST_BUILD
+    unsigned long mockMillis = 0;
+#endif
+
+    unsigned long mMillis() {
+#ifdef TEST_BUILD
+        return mockMillis;
+#else
+        return mMillis();
+#endif
+    }
 
     void updateState(int pinValue) {
         switch (state) {
             case State::Released:
                 if (pinValue == PRESSED) {
                     state = State::DebouncePress;
-                    lastDebounceTime = millis();
+                    lastDebounceTime = mMillis();
                     DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::DebouncePress]");
                 }
 
                 break;
             case State::DebouncePress:
-                if ((millis() - lastDebounceTime) > debounceDelay) {
+                if ((mMillis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == PRESSED) {
                         state = State::Pressed;
-                        lastHoldTime = millis();
+                        lastHoldTime = mMillis();
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
                     } else {
                         state = State::Released;
@@ -49,10 +60,10 @@ struct ButtonState {
             case State::Pressed:
                 if (pinValue == RELEASED) {
                     state = State::DebounceRelease;
-                    lastDebounceTime = millis();
+                    lastDebounceTime = mMillis();
                     DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
                 } else { // pinValue == RELEASED
-                    if (millis() - lastHoldTime > holdDelay) {
+                    if (mMillis() - lastHoldTime > holdDelay) {
                         state = State::HeldDown;
                         DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::HeldDown]");
                     }
@@ -61,19 +72,19 @@ struct ButtonState {
             case State::HeldDown:
                 if (pinValue == RELEASED) {
                     state = State::DebounceRelease;
-                    lastDebounceTime = millis();
+                    lastDebounceTime = mMillis();
                     DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
                 }
 
                 break;
             case State::DebounceRelease:
-                if ((millis() - lastDebounceTime) > debounceDelay) {
+                if ((mMillis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == RELEASED) {
                         state = State::Released;
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
                     } else {
                         state = State::Pressed;
-                        lastHoldTime = millis();
+                        lastHoldTime = mMillis();
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
                     }
                 }
