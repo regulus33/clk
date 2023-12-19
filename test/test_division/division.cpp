@@ -3,7 +3,7 @@
 #include "division.h"
 
 void test_basic_tick_behavior() {
-    DividerState dividerState = {0b1000000000000000, 15, 15}; // Initial state
+    DividerState dividerState = {0b0000000000000001, 15, 0}; // Initial state
     bool tickResult = Division::tick(dividerState);
     TEST_ASSERT_TRUE(tickResult); // First tick should be true
     tickResult = Division::tick(dividerState);
