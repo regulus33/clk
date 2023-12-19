@@ -1,7 +1,7 @@
 #define TEST_BUILD
 #include "unity.h"
 #include "Arduino.h"
-#include "program_state.h"
+#include "state/program_state.h"
 
 void expectEqual(int a, int b) {
     TEST_ASSERT_EQUAL(b, a);

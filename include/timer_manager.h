@@ -2,10 +2,10 @@
 #define CLK_TIMER_MANAGER_H
 #include <TimerOne.h>
 #include <Arduino.h>
-#include "program_state.h"
-#include "ram_service.h"
-#include "debug_utils.h"
-#include "knob.h"
+#include "state/program_state.h"
+#include "development/ram_service.h"
+#include "development/debug_utils.h"
+#include "hardware/knob_service.h"
 
 class TimerManager {
 public:

@@ -1,9 +1,9 @@
 #ifndef CLK_DIVISION_H
 #define CLK_DIVISION_H
 constexpr uint8_t MAX_STEP_INDEX = 16;
-#include "program_state.h"
-#include "divider_state.h"
-#include "debug_utils.h"
+#include "state/program_state.h"
+#include "state/divider_state.h"
+#include "development/debug_utils.h"
 
 static const uint8_t endOfSteps[MAX_STEP_INDEX] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 

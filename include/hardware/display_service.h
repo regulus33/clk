@@ -1,7 +1,7 @@
 #ifndef OLED_DISPLAY_H
 #define OLED_DISPLAY_H
-#include "debug_utils.h"
-#include <U8x8lib.h>
+#include "development/debug_utils.h"
+#include "U8x8lib.h"
 #include <Wire.h>
 
 enum PrintType {
@@ -10,7 +10,7 @@ enum PrintType {
     Rhythm,
 };
 
-class OledDisplay {
+class DisplayService {
 private:
     static U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;  // Static OLED object
 
@@ -48,5 +48,5 @@ public:
 //    }
 };
 
-U8X8_SSD1306_128X64_NONAME_HW_I2C OledDisplay::u8x8 = U8X8_SSD1306_128X64_NONAME_HW_I2C();  // Initialize static OLED object
+U8X8_SSD1306_128X64_NONAME_HW_I2C DisplayService::u8x8 = U8X8_SSD1306_128X64_NONAME_HW_I2C();  // Initialize static OLED object
 #endif //OLED_DISPLAY_H

@@ -1,19 +1,19 @@
 #include "Arduino.h"
 #include "division.h"
 #include "timer_manager.h"
-#include "oled_display.h"
-#include "button.h"
-#include "program_state.h"
+#include "hardware/display_service.h"
+#include "hardware/button_service.h"
+#include "state/program_state.h"
 #define INITIAL_INTERVAL 1000
 
 ProgramState state;
 void pulse_callback() { state.setPulseReceived(1); };
-Button buttons[4] = {Button(7),Button(6),Button(5),Button(4) };
+ButtonService buttons[4] = {ButtonService(7), ButtonService(6), ButtonService(5), ButtonService(4) };
 
 void setup() {
     DEBUG_SETUP;
-    OledDisplay::setup();
-    Knob::setup();
+    DisplayService::setup();
+    KnobService::setup();
     for (int i = 0; i < BUTTON_COUNT; i++) { buttons[i].setup();}
     TimerManager::setup(INITIAL_INTERVAL, pulse_callback);
     Division::setup();
@@ -50,14 +50,14 @@ void loop() {
     buttons[2].update();
     buttons[3].update();
 
-    state.setBpm(TimerManager::convert_adc_read_to_bpm(Knob::getValue()));
+    state.setBpm(TimerManager::convert_adc_read_to_bpm(KnobService::getValue()));
     if (state.bpmChanged() || state.ppqnChanged()) {
         uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
                 state.getBpm(),
                 state.getPpqn()
         );
         TimerManager::update_timer1_interval(timer_interval);
-        OledDisplay::printLine(state.getBpm(), BPM);
+        DisplayService::printLine(state.getBpm(), BPM);
     }
 }
 

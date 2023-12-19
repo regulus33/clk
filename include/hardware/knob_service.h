@@ -1,11 +1,11 @@
-#ifndef CLK_KNOB_H
-#define CLK_KNOB_H
+#ifndef CLK_KNOB_SERVICE_H
+#define CLK_KNOB_SERVICE_H
 constexpr  uint16_t POT_DEADZONE = 20;
 constexpr uint16_t LAST_ADC_VALUE = 120;
 #include <Arduino.h>
-#include "debug_utils.h"
+#include "development/debug_utils.h"
 
-class Knob {
+class KnobService {
 public:
     static void setup() {
         initAdc();
@@ -48,8 +48,8 @@ private:
     }
 };
 
-uint16_t Knob::last_adc_value = LAST_ADC_VALUE;  // Initialize static variable
+uint16_t KnobService::last_adc_value = LAST_ADC_VALUE;  // Initialize static variable
 
 
 
-#endif //CLK_KNOB_H
+#endif //CLK_KNOB_SERVICE_H
