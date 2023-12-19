@@ -10,6 +10,8 @@
 
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
+constexpr unsigned long DEBOUNCE_DELAY = 50;
+constexpr unsigned long HOLD_DELAY = 1000;
 
 struct ButtonState {
     enum class State {
@@ -21,9 +23,9 @@ struct ButtonState {
     };
     State state = State::Released;
     unsigned long lastDebounceTime;
-    const unsigned long debounceDelay = 50;
+    const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
-    const unsigned long holdDelay = 1000;
+    const unsigned long holdDelay = HOLD_DELAY;
 #ifdef TEST_BUILD
     unsigned long mockMillis = 0;
 #endif
