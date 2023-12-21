@@ -1,9 +1,10 @@
 #ifndef CLK_PROGRAM_STATE_H
 #define CLK_PROGRAM_STATE_H
+
 #include "development/debug_utils.h"
 #include <stdint-gcc.h>
 #include "divider_state.h"
-
+#include "button_state.h"
 
 constexpr uint8_t DIV1_PIN = 8;
 constexpr uint8_t DIV2_PIN = 9;
@@ -16,14 +17,15 @@ private:
     /* CLOCK */
     uint8_t bpm = 1;
     uint8_t lastBpm = 1;
-    uint8_t ppqn = 24;
-    uint8_t lastPpqn = 24;
-
+    const uint8_t ppqn = 24;
     /* PULSE ISR-FLAG */
     uint8_t pulseReceived = 0;
 
     /* DIVISION | OUTPUT */
     DividerState dividers[4]; // Array of 4 dividers
+    ButtonState buttons[4]; // Array of 4 dividers
+
+
 
 public:
     ProgramState() : dividers{
@@ -31,6 +33,11 @@ public:
             {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
             {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
             {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
+    }, buttons{
+            IOIndex::ONE,
+            IOIndex::TWO,
+            IOIndex::THREE,
+            IOIndex::FOUR
     } {}
 
     /* CLOCK Methods */
@@ -43,14 +50,8 @@ public:
 
     bool bpmChanged() const { return bpm != lastBpm; }
 
-    void setPpqn(uint8_t newPpqn) {
-        lastBpm = ppqn;
-        ppqn = newPpqn;
-    }
-
+    // TODO: this is a static number ppqn will be on a per division basis
     uint8_t getPpqn() const { return ppqn; }
-
-    bool ppqnChanged() const { return ppqn != lastPpqn; }
 
     /* PULSE ISR-FLAG Methods */
     void setPulseReceived(uint8_t p) { pulseReceived = p; }

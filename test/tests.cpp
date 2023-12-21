@@ -69,20 +69,20 @@ void commitReleaseButtonPress(ButtonState& buttonState, unsigned long lastTime) 
 
 // ButtonState
 void test_transition_to_debounce_press() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
 }
 
 // ButtonState
 void test_transition_to_pressed() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
     commitButtonPress(buttonState);
 }
 
 // ButtonState
 void test_transition_to_held() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -90,7 +90,7 @@ void test_transition_to_held() {
 
 // ButtonState
 void test_transition_to_debounce_release() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -99,7 +99,7 @@ void test_transition_to_debounce_release() {
 
 // ButtonState
 void test_transition_to_release() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -110,7 +110,7 @@ void test_transition_to_release() {
 
 // ButtonState
 void test_transition_to_press_with_jitter() {
-    ButtonState buttonState;
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
     pressButton(buttonState);
 }
 
@@ -167,14 +167,6 @@ void test_bpm_handling() {
 }
 
 // ProgramState
-void test_ppqn_handling() {
-    ProgramState programState;
-    programState.setPpqn(48);
-    TEST_ASSERT_EQUAL(programState.getPpqn(), 48);
-    TEST_ASSERT_EQUAL(programState.ppqnChanged(), true);
-}
-
-// ProgramState
 void test_pulse_received_handling() {
     ProgramState programState;
     programState.setPulseReceived(1);
@@ -194,7 +186,6 @@ int runUnityTests(void) {
     RUN_TEST(test_knob_getValue_outside_deadzone);
     RUN_TEST(test_program_state_constructor);
     RUN_TEST(test_bpm_handling);
-    RUN_TEST(test_ppqn_handling);
     RUN_TEST(test_pulse_received_handling);
     UNITY_END();
 }

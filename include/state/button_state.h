@@ -1,12 +1,13 @@
 //
 // Created by zachary rowden on 19.12.2023.
 //
-
 #ifndef CLK_BUTTON_STATE_H
 #define CLK_BUTTON_STATE_H
 
 #include "Arduino.h"
 #include "development/debug_utils.h"
+#include "io_index.h"
+#include "clock_mode.h"
 
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
@@ -26,6 +27,9 @@ struct ButtonState {
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
     const unsigned long holdDelay = HOLD_DELAY;
+    IOIndex ioIndex;
+    uint8_t startupFlagFlipped = false;
+
 #ifdef TEST_BUILD
     unsigned long mockMillis = 0;
 #endif
@@ -37,6 +41,9 @@ struct ButtonState {
         return mMillis();
 #endif
     }
+
+
+    ButtonState(IOIndex ioIndex) : ioIndex(ioIndex) {}
 
     void updateState(int pinValue) {
         switch (state) {
@@ -76,6 +83,9 @@ struct ButtonState {
                     state = State::DebounceRelease;
                     lastDebounceTime = mMillis();
                     DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
+                    // TODO: IMPORTANT GLOBAL STATE CHANGE
+                    if(!startupFlagFlipped && ioIndex == IOIndex::ONE) {}
+
                 }
 
                 break;
