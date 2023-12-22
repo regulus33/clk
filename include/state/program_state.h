@@ -29,15 +29,15 @@ private:
 
 public:
     ProgramState() : dividers{
-            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
-            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
-            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
-            {INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
+            {IOIndex::ONE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
+            {IOIndex::TWO, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
+            {IOIndex::THREE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
+            {IOIndex::FOUR, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
     }, buttons{
-            IOIndex::ONE,
-            IOIndex::TWO,
-            IOIndex::THREE,
-            IOIndex::FOUR
+            {IOIndex::ONE},
+            {IOIndex::TWO},
+            {IOIndex::THREE},
+            {IOIndex::FOUR}
     } {}
 
     /* CLOCK Methods */
@@ -61,9 +61,16 @@ public:
     // Accessors for Divider States
     DividerState &getDivider(uint8_t index) {
         if (index >= MAX_DIVIDERS) {
-            DEBUG_PRINTLN("[PROGRAM_STATE] - Div index out of bounds");
+            DEBUG_PRINTLN("[PROGRAM_STATE] - DivState index out of bounds");
         }
         return dividers[index];
+    }
+
+    ButtonState &getButton(uint8_t index) {
+        if(index >= MAX_DIVIDERS) {
+            DEBUG_PRINTLN("[PROGRAM_STATE] - ButtonState index out of bounds");
+        }
+        return buttons[index];
     }
 };
 

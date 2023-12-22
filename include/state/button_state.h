@@ -38,7 +38,7 @@ struct ButtonState {
 #ifdef TEST_BUILD
         return mockMillis;
 #else
-        return mMillis();
+        return millis();
 #endif
     }
 
