@@ -11,5 +11,44 @@ stateDiagram-v2
     DebouncePress --> Released: time > debounceDelay && pinValue == 1
     DebounceRelease --> Pressed: time > debounceDelay && pinValue == 0
     Released --> [*]
+```
 
+# ButtonState -> ProgramState communication schema
+```mermaid
+classDiagram
+    class ProgramState {
+        -ClockMode clockMode
+        -uint8_t pulseReceived
+        +ClockMode getClockMode()
+        +void setClockMode(ClockMode clockMode)
+    }
+    
+    class DivisionState {
+        +uint8_t division
+        +DivsionMode divisionMode
+        
+    }
+    
+    class ButtonState {
+        +IOIndex ioIndex
+        -void((*onClockModeChange)(ClockMode))
+        -void((*onDivisionChange)(uint8_t))
+        -void((*onDivisionModeChange)(DivsionMode))
+    }
+    
+    class GlobalCallBack {
+        +static void pulseChangeCallback()
+        +static void onClockModeChange(ClockMode clockMode)
+        +static void onDivisionChange(uint8_t division)
+        +static void onDivisionModeChange(DivsionMode divisionMode)
+    }
+    
+    ProgramState .. ButtonState : has many
+    ProgramState .. DivisionState : has many
+    ButtonState .. GlobalCallBack : onClockModeChange(clockMode)
+    ButtonState .. GlobalCallBack : onDivisionChange(division)
+    ButtonState .. GlobalCallBack : onDivisionModeChange(divisionMode)
+    GlobalCallBack --|> ProgramState : changes clock modes
+    GlobalCallBack --|> DivisionState : changes division modes
+    GlobalCallBack --|> DivisionState : changes divisions
 ```

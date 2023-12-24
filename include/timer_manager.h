@@ -9,9 +9,9 @@
 
 class TimerManager {
 public:
-    static void setup(uint16_t interval_microseconds, void (*pulse_callback)()) {
+    static void setup(uint16_t interval_microseconds, void (*onPulseChange)()) {
         Timer1.initialize(interval_microseconds);
-        Timer1.attachInterrupt(pulse_callback);
+        Timer1.attachInterrupt(onPulseChange);
         DEBUG_PRINTLN("[TIMER_MANAGER][SETUP]");
     }
 

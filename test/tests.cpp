@@ -187,7 +187,6 @@ void test_io_index_assignment() {
     TEST_ASSERT_EQUAL(programState.getButton(3).ioIndex, IOIndex::FOUR);
 }
 
-// TODO
 void test_child_buttons() {
     ProgramState programState;
     TEST_ASSERT_EQUAL(programState.getButton(0).state, ButtonState::State::Released);
@@ -261,6 +260,7 @@ int runUnityTests(void) {
     // ButtonService
     RUN_TEST(test_button_read_pins_4_to_7);
     UNITY_END();
+    return 1;
 }
 
 void setup() {

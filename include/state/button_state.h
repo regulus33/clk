@@ -8,28 +8,41 @@
 #include "development/debug_utils.h"
 #include "io_index.h"
 #include "clock_mode.h"
+#include "division_mode.h"
 
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
 constexpr unsigned long DEBOUNCE_DELAY = 50;
 constexpr unsigned long HOLD_DELAY = 1000;
+typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
+typedef void (*DivisionChangeCallback)(uint8_t, IOIndex);
+typedef void (*ClockModeChangeCallback)(ClockMode);
 
 struct ButtonState {
+    //////////////////////////
+    // FOR 🍐弐 pairing with Divison State
+    IOIndex ioIndex;
+    // 💾 STATE
     enum class State {
-        Released,
-        DebouncePress,
-        Pressed,
-        HeldDown,
-        DebounceRelease
+        Released, DebouncePress, Pressed, HeldDown, DebounceRelease
     };
     State state = State::Released;
+
+    // STATE MACHINE DEBOUNCE 🎾
     unsigned long lastDebounceTime;
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
     const unsigned long holdDelay = HOLD_DELAY;
-    IOIndex ioIndex;
+    //////////////////////////
+    // 🚩 for GLOBAL 🌎 CLOCK MODE change, only check once on startup...
     uint8_t startupFlagFlipped = false;
+    /////////////////////////
+    // ‼️callbacks ☎️
+    DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
+    DivisionChangeCallback divisionChangeCallback = nullptr;
+    ClockModeChangeCallback clockModeChangeCallback = nullptr;
 
+    // 🤡 mock millis() so we can test state machine
 #ifdef TEST_BUILD
     unsigned long mockMillis = 0;
 #endif
@@ -83,9 +96,10 @@ struct ButtonState {
                     state = State::DebounceRelease;
                     lastDebounceTime = mMillis();
                     DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-                    // TODO: IMPORTANT GLOBAL STATE CHANGE
-                    if(!startupFlagFlipped && ioIndex == IOIndex::ONE) {}
-
+                    // ‼️This is how we switch from internal clock to external interrupt (jack in +5v pulse) 🌍
+//                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
+//                        clockModeChangeCallback(ClockMode::External);
+//                    }
                 }
 
                 break;
@@ -93,6 +107,7 @@ struct ButtonState {
                 if ((mMillis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == RELEASED) {
                         state = State::Released;
+//                        divisionChangeCallback(3, ioIndex);
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
                     } else {
                         state = State::Pressed;

@@ -18,6 +18,7 @@ private:
     uint8_t bpm = 1;
     uint8_t lastBpm = 1;
     const uint8_t ppqn = 24;
+
     /* PULSE ISR-FLAG */
     uint8_t pulseReceived = 0;
 
@@ -25,9 +26,11 @@ private:
     DividerState dividers[4]; // Array of 4 dividers
     ButtonState buttons[4]; // Array of 4 dividers
 
-
+    /* CONNECTED TO GLOBAL CALLBACK */
+    ClockMode clockMode = ClockMode::Internal;
 
 public:
+    // TODO: this kind of sucks... Ideally this would be empty until explicityl updated in main.setup()
     ProgramState() : dividers{
             {IOIndex::ONE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
             {IOIndex::TWO, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
@@ -50,7 +53,7 @@ public:
 
     bool bpmChanged() const { return bpm != lastBpm; }
 
-    // TODO: this is a static number ppqn will be on a per division basis
+    // TODO: this is a static number ppqn is about the appearance of bpm on the screen... constantize it
     uint8_t getPpqn() const { return ppqn; }
 
     /* PULSE ISR-FLAG Methods */
@@ -71,6 +74,27 @@ public:
             DEBUG_PRINTLN("[PROGRAM_STATE] - ButtonState index out of bounds");
         }
         return buttons[index];
+    }
+
+    void setButtonTriggeredCallbacks(
+            DivisionModeChangeCallback divisionModeChangeCallback,
+            DivisionChangeCallback divisionChangeCallback,
+            ClockModeChangeCallback clockModeChangeCallback
+            ) {
+          for(auto & button : buttons) {
+              button.divisionChangeCallback = divisionChangeCallback;
+              button.divisionModeChangeCallback = divisionModeChangeCallback;
+              button.clockModeChangeCallback = clockModeChangeCallback;
+          }
+    }
+
+    void setClockMode(ClockMode newclockMode) {
+        clockMode = newclockMode;
+    }
+
+    // TODO: check clock mode where applicable to decide internal vs. external clock source
+    ClockMode getClockMode() {
+        return clockMode;
     }
 };
 
