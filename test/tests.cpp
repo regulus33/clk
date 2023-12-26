@@ -8,16 +8,90 @@
 #include "state/program_state.h"
 #include "development/mock_pind.h"
 #include "hardware/button_service.h"
+#include "state/division_state.h"
 
-/* Helpers */
+/* Helpers 🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️ */
+enum Callback {
+    DivisionModeChange,
+    DivisionChange,
+    ClockModeChange,
+    None
+};
+
+struct MockProgramState {
+    Callback lastCallbackCalled = Callback::None;
+};
+
+MockProgramState state;
+
+void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
+    state.lastCallbackCalled = Callback::DivisionModeChange;
+}
+void divisionChangeCallback(uint8_t division, IOIndex ioIndex) {
+    state.lastCallbackCalled = Callback::DivisionChange;
+}
+// TODO: it can't be triggered in HeldDown state as state machine isn't active before reset or power on
+void clockModeChangeCallback(ClockMode clockMode) {
+    state.lastCallbackCalled = Callback::ClockModeChange;
+}
 
 void runDividerTestsDynamically(uint8_t num) {
-    DividerState dividerState = {IOIndex::ONE, 0b0000000000000001, num, 0};
-    TEST_ASSERT_TRUE(DivisionService::tick(dividerState));
+    DivisionState divisionState = {IOIndex::ONE, 0b0000000000000001, num, 0};
+    TEST_ASSERT_TRUE(DivisionService::tick(divisionState));
     for (int i = 0; i < num; i++) {
-        TEST_ASSERT_FALSE(DivisionService::tick(dividerState));
+        TEST_ASSERT_FALSE(DivisionService::tick(divisionState));
     }
-    TEST_ASSERT_TRUE(DivisionService::tick(dividerState));
+    TEST_ASSERT_TRUE(DivisionService::tick(divisionState));
+}
+
+// BUTTON SERVICE HELPERS
+uint8_t mockPinD() {
+    return MockPinD::getInstance()->getMockValue();
+}
+
+uint8_t readPinRegister(uint8_t registerMockReturn, uint8_t pin) {
+    // Set the mock PIND value to simulate button at pin 4 being pressed
+    MockPinD::getInstance()->setMockValue(registerMockReturn);
+
+    return ButtonService::readPin(pin);
+
+}
+
+void runButtonTest(uint8_t expected, uint8_t mock, uint8_t pin) {
+    TEST_ASSERT_EQUAL(expected, readPinRegister(mock, pin));
+}
+
+void test_button_read_pins_4_to_7() {
+    constexpr uint8_t EXAMPLES = 8;
+
+    for (int i = 4; i < EXAMPLES; i++) {
+        runButtonTest(0, B00000000, i);
+    }
+
+    // Test args
+    // 1: expected reading value 2: mock PIND register value 3: pin number
+    uint8_t t[EXAMPLES][3]{
+            {LOW,  B11101111, 4},
+            {LOW,  B11011111, 5},
+            {LOW,  B10111111, 6},
+            {LOW,  B01111111, 7},
+            {HIGH, B00010000, 4},
+            {HIGH, B00100000, 5},
+            {HIGH, B01000000, 6},
+            {HIGH, B10000000, 7},
+    };
+
+    for (int i = 0; i < EXAMPLES; i++) {
+        runButtonTest(t[i][0], t[i][1], t[i][2]);
+    }
+
+}
+
+// BUTTON STATE HELPERS
+void setupCallbacks(ButtonState& buttonState) {
+    buttonState.divisionChangeCallback = divisionChangeCallback;
+    buttonState.divisionModeChangeCallback = divisionModeChangeCallback;
+    buttonState.clockModeChangeCallback = clockModeChangeCallback;
 }
 
 void updateButton(
@@ -68,16 +142,18 @@ void commitReleaseButtonPress(ButtonState &buttonState, unsigned long lastTime) 
 }
 
 /* Tests */
-
+//🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪
 // ButtonState
 void test_transition_to_debounce_press() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
 }
 
 // ButtonState
 void test_transition_to_pressed() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
 }
@@ -85,6 +161,7 @@ void test_transition_to_pressed() {
 // ButtonState
 void test_transition_to_held() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -93,6 +170,7 @@ void test_transition_to_held() {
 // ButtonState
 void test_transition_to_debounce_release() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -102,6 +180,7 @@ void test_transition_to_debounce_release() {
 // ButtonState
 void test_transition_to_release() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
@@ -113,6 +192,7 @@ void test_transition_to_release() {
 // ButtonState
 void test_transition_to_press_with_jitter() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
     pressButton(buttonState);
 }
 
@@ -190,48 +270,6 @@ void test_io_index_assignment() {
 void test_child_buttons() {
     ProgramState programState;
     TEST_ASSERT_EQUAL(programState.getButton(0).state, ButtonState::State::Released);
-}
-
-uint8_t mockPinD() {
-    return MockPinD::getInstance()->getMockValue();
-}
-
-uint8_t readPinRegister(uint8_t registerMockReturn, uint8_t pin) {
-    // Set the mock PIND value to simulate button at pin 4 being pressed
-    MockPinD::getInstance()->setMockValue(registerMockReturn);
-
-    return ButtonService::readPin(pin);
-
-}
-
-void runButtonTest(uint8_t expected, uint8_t mock, uint8_t pin) {
-    TEST_ASSERT_EQUAL(expected, readPinRegister(mock, pin));
-}
-
-void test_button_read_pins_4_to_7() {
-    constexpr uint8_t EXAMPLES = 8;
-
-    for (int i = 4; i < EXAMPLES; i++) {
-        runButtonTest(0, B00000000, i);
-    }
-
-    // Test args
-    // 1: expected reading value 2: mock PIND register value 3: pin number
-    uint8_t t[EXAMPLES][3]{
-            {LOW,  B11101111, 4},
-            {LOW,  B11011111, 5},
-            {LOW,  B10111111, 6},
-            {LOW,  B01111111, 7},
-            {HIGH, B00010000, 4},
-            {HIGH, B00100000, 5},
-            {HIGH, B01000000, 6},
-            {HIGH, B10000000, 7},
-    };
-
-    for (int i = 0; i < EXAMPLES; i++) {
-        runButtonTest(t[i][0], t[i][1], t[i][2]);
-    }
-
 }
 
 int runUnityTests(void) {

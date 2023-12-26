@@ -30,7 +30,7 @@ constexpr uint8_t BUTTON4 = 3;
 ProgramState state;
 // 👇 Program state is referenced by all 3️⃣ of these callbacks ☎️
 // GLOBAL CALLBACKS
-//📞📞📞
+// ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
 void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
@@ -38,15 +38,14 @@ void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     // TODO use ioIndex to locate the divider in programState
     /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
 }
-void divisionChangeCallback(uint8_t division, IOIndex ioIndex) {
-    // TODO use ioIndex to locate the divider in programState
-    /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
+void divisionChangeCallback(IOIndex ioIndex) {
+
 }
 // TODO: it can't be triggered in HeldDown state as state machine isn't active before reset or power on
 void clockModeChangeCallback(ClockMode clockMode) {
     state.setClockMode(clockMode);
 }
-//📞📞📞
+//////////////////////////////////////////////////////////////////////////////
 
 
 

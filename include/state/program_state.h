@@ -3,7 +3,7 @@
 
 #include "development/debug_utils.h"
 #include <stdint-gcc.h>
-#include "divider_state.h"
+#include "division_state.h"
 #include "button_state.h"
 
 constexpr uint8_t DIV1_PIN = 8;
@@ -23,7 +23,7 @@ private:
     uint8_t pulseReceived = 0;
 
     /* DIVISION | OUTPUT */
-    DividerState dividers[4]; // Array of 4 dividers
+    DivisionState dividers[4]; // Array of 4 dividers
     ButtonState buttons[4]; // Array of 4 dividers
 
     /* CONNECTED TO GLOBAL CALLBACK */
@@ -62,7 +62,7 @@ public:
     uint8_t getPulseReceived() const { return pulseReceived; }
 
     // Accessors for Divider States
-    DividerState &getDivider(uint8_t index) {
+    DivisionState &getDivider(uint8_t index) {
         if (index >= MAX_DIVIDERS) {
             DEBUG_PRINTLN("[PROGRAM_STATE] - DivState index out of bounds");
         }

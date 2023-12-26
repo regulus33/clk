@@ -15,28 +15,29 @@ constexpr uint8_t RELEASED = 1;
 constexpr unsigned long DEBOUNCE_DELAY = 50;
 constexpr unsigned long HOLD_DELAY = 1000;
 typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
-typedef void (*DivisionChangeCallback)(uint8_t, IOIndex);
+typedef void (*DivisionChangeCallback)(IOIndex);
 typedef void (*ClockModeChangeCallback)(ClockMode);
 
 struct ButtonState {
-    //////////////////////////
+    ///////////////////
     // FOR 🍐弐 pairing with Divison State
-    IOIndex ioIndex;
+    IOIndex ioIndex; // 🗂️
+    //////////////////
     // 💾 STATE
     enum class State {
         Released, DebouncePress, Pressed, HeldDown, DebounceRelease
     };
     State state = State::Released;
-
-    // STATE MACHINE DEBOUNCE 🎾
+    ///////////////////////////////////////////////////
+    // STATE MACHINE DEBOUNCE TIMERS ⏲️🚫-> 🎾
     unsigned long lastDebounceTime;
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
     const unsigned long holdDelay = HOLD_DELAY;
-    //////////////////////////
+    ///////////////////////////////////////////////////
     // 🚩 for GLOBAL 🌎 CLOCK MODE change, only check once on startup...
     uint8_t startupFlagFlipped = false;
-    /////////////////////////
+    ///////////////////////////////////
     // ‼️callbacks ☎️
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     DivisionChangeCallback divisionChangeCallback = nullptr;
@@ -96,10 +97,12 @@ struct ButtonState {
                     state = State::DebounceRelease;
                     lastDebounceTime = mMillis();
                     DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-                    // ‼️This is how we switch from internal clock to external interrupt (jack in +5v pulse) 🌍
-//                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
-//                        clockModeChangeCallback(ClockMode::External);
-//                    }
+                    // ‼️This is how we switch from internal 🕰️to external interrupt (jack in +5v pulse) 🌍
+                    // ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
+                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
+                        clockModeChangeCallback(ClockMode::External);
+                    }
+                    ///////////////////////////////////////////////////
                 }
 
                 break;
@@ -107,7 +110,7 @@ struct ButtonState {
                 if ((mMillis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == RELEASED) {
                         state = State::Released;
-//                        divisionChangeCallback(3, ioIndex);
+                        divisionChangeCallback(ioIndex);
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
                     } else {
                         state = State::Pressed;
