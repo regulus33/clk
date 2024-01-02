@@ -17,6 +17,7 @@ constexpr unsigned long HOLD_DELAY = 1000;
 typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
 typedef void (*DivisionChangeCallback)(IOIndex);
 typedef void (*ClockModeChangeCallback)(ClockMode);
+typedef void (*DivisionDisplayCallback)(IOIndex);
 
 struct ButtonState {
     ///////////////////
@@ -29,7 +30,7 @@ struct ButtonState {
     };
     State state = State::Released;
     ///////////////////////////////////////////////////
-    // STATE MACHINE DEBOUNCE TIMERS ⏲️🚫-> 🎾
+    // STATE MACHINE DEBOUNCE TIMERS ⏲️ 🚫-> 🎾
     unsigned long lastDebounceTime;
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
@@ -42,6 +43,7 @@ struct ButtonState {
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     DivisionChangeCallback divisionChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
+    DivisionDisplayCallback divisionDisplayCallback = nullptr;
 
     // 🤡 mock millis() so we can test state machine
 #ifdef TEST_BUILD
@@ -110,6 +112,9 @@ struct ButtonState {
                 if ((mMillis() - lastDebounceTime) > debounceDelay) {
                     if (pinValue == RELEASED) {
                         state = State::Released;
+                        DEBUG_PRINT("[CALLBACK][ABOUT_TO_CALL]divisionChangeCallback] - ioIndex");
+                        DEBUG_PRINTLN_VAR(ioIndex);
+
                         divisionChangeCallback(ioIndex);
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
                     } else {

@@ -10,6 +10,11 @@
 #include "hardware/button_service.h"
 #include "state/division_state.h"
 
+// How to write new tests 📝
+// 1. try to create a helper method with aCamelCaseName() that sets up the class instance and mocks data if needed
+// 2. create a descriptive test_method_name_like_this that runs that helper.
+// 3. in either the helper, the test or both, create TEST_ASSERT_EQUAL calls on the expected output
+
 /* Helpers 🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️ */
 enum Callback {
     DivisionModeChange,
@@ -27,7 +32,7 @@ MockProgramState state;
 void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     state.lastCallbackCalled = Callback::DivisionModeChange;
 }
-void divisionChangeCallback(uint8_t division, IOIndex ioIndex) {
+void divisionChangeCallback(IOIndex ioIndex) {
     state.lastCallbackCalled = Callback::DivisionChange;
 }
 // TODO: it can't be triggered in HeldDown state as state machine isn't active before reset or power on
@@ -35,7 +40,7 @@ void clockModeChangeCallback(ClockMode clockMode) {
     state.lastCallbackCalled = Callback::ClockModeChange;
 }
 
-void runDividerTestsDynamically(uint8_t num) {
+void runDividerTickForDivisionOf(uint8_t num) {
     DivisionState divisionState = {IOIndex::ONE, 0b0000000000000001, num, 0};
     TEST_ASSERT_TRUE(DivisionService::tick(divisionState));
     for (int i = 0; i < num; i++) {
@@ -197,10 +202,30 @@ void test_transition_to_press_with_jitter() {
 }
 
 // Divider
-void test_different_divider_configurations() {
+void test_divisions_1_to_16() {
     for (int i = 0; i < 16; i++) {
-        runDividerTestsDynamically(i);
+        runDividerTickForDivisionOf(i);
     }
+}
+
+void test_division_state_increment_index_end_of_steps() {
+    // Normal case
+    DivisionState divisionState(IOIndex::ONE);
+    divisionState.indexEndOfSteps = 1;
+    uint8_t  toPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    TEST_ASSERT_EQUAL(2, divisionState.indexEndOfSteps);
+    TEST_ASSERT_EQUAL(4, toPrint);
+    // We should loop back around when we get past 16
+
+    divisionState.indexEndOfSteps = 15;
+    toPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    TEST_ASSERT_EQUAL(0, divisionState.indexEndOfSteps);
+    TEST_ASSERT_EQUAL(2, toPrint);
+
+    divisionState.indexEndOfSteps = 14;
+    toPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    TEST_ASSERT_EQUAL(15, divisionState.indexEndOfSteps);
+    TEST_ASSERT_EQUAL(17, toPrint);
 }
 
 // KnobService
@@ -272,6 +297,15 @@ void test_child_buttons() {
     TEST_ASSERT_EQUAL(programState.getButton(0).state, ButtonState::State::Released);
 }
 
+void test_division_change_callback() {
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
+    pressButton(buttonState);
+    commitButtonPress(buttonState);
+    TEST_ASSERT_EQUAL(state.lastCallbackCalled, Callback::DivisionChange);
+}
+
+
 int runUnityTests(void) {
     UNITY_BEGIN();
     // ButtonState
@@ -281,8 +315,11 @@ int runUnityTests(void) {
     RUN_TEST(test_transition_to_debounce_release);
     RUN_TEST(test_transition_to_release);
 
+    // DivisionState
+    RUN_TEST(test_division_state_increment_index_end_of_steps);
+
     // DivisionService
-    RUN_TEST(test_different_divider_configurations);
+    RUN_TEST(test_divisions_1_to_16);
 
     //KnobService
     RUN_TEST(test_knob_setup);
@@ -297,6 +334,9 @@ int runUnityTests(void) {
 
     // ButtonService
     RUN_TEST(test_button_read_pins_4_to_7);
+
+    // Callbacks
+    RUN_TEST(test_division_change_callback);
     UNITY_END();
     return 1;
 }

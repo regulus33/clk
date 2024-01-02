@@ -30,6 +30,22 @@ public:
         return tick;
     }
 
+    static uint8_t getDivisionPrint(DivisionState& divisionState) {
+        return divisionState.indexEndOfSteps + 2;
+    }
+
+    static uint8_t incrementIndexEndOfSteps(DivisionState& divisionState) {
+        if(divisionState.mode != DivisionMode::Divider) {
+            DEBUG_PRINTLN("[WARNING][WARNING] incrementIndexEndOfSteps() called without being in Divider Mode!!!!");
+        } else {
+            DEBUG_PRINT("[DIVISION_STATE][INCREMENT] - current indexEndOfSteps");
+            DEBUG_PRINTLN_VAR(divisionState.indexEndOfSteps);
+            // the division is just the indexEndOfSteps - 1, so you can print the number before it to show it on screen
+            divisionState.indexEndOfSteps = (divisionState.indexEndOfSteps + 1) % MAX_STEP_INDEX;
+            return getDivisionPrint(divisionState);
+        }
+    }
+
 };
 
 #endif //CLK_DIVISION_SERVICE_H

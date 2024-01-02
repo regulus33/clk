@@ -27,15 +27,7 @@ struct DivisionState {
               ) {}
 
       // returns a display 📿📺string for the screen to show the current division valye
-    uint8_t incrementDivision() {
-        if(mode != DivisionMode::Divider) {
-            DEBUG_PRINTLN("[WARNING][WARNING] incrementDivision() called without being in Divider Mode!!!!");
-        } else {
-            // the division is just the indexEndOfSteps - 1, so you can print the number before it to show it on screen
-            indexEndOfSteps = (indexEndOfSteps + 1) % MAX_STEP_INDEX;
-            return  indexEndOfSteps - 1;
-        }
-    }
+
 };
 
 #endif //CLK_DIVISION_STATE_H

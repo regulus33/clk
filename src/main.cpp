@@ -8,45 +8,41 @@
 
 #define INITIAL_INTERVAL 1000
 
-// NOTE 📝
-// Dividers ➗ and  Buttons connect via 🔘 INDEX
-//1️⃣
-constexpr uint8_t BUTTON1 = 0;
-constexpr uint8_t DIVIDER1 = 0;
-////////////////////////////
-//2️⃣
-constexpr uint8_t BUTTON2 = 1;
-constexpr uint8_t DIVIDER2 = 1;
-////////////////////////////
-//3️⃣
-constexpr uint8_t DIVIDER3 = 2;
-constexpr uint8_t BUTTON3 = 2;
-////////////////////////////
-//4️⃣
-constexpr uint8_t DIVIDER4 = 3;
-constexpr uint8_t BUTTON4 = 3;
-////////////////////////////
-
 ProgramState state;
+
 // 👇 Program state is referenced by all 3️⃣ of these callbacks ☎️
 // GLOBAL CALLBACKS
 // ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
 void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
+
+// TODO
 void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     // TODO use ioIndex to locate the divider in programState
     /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
 }
-void divisionChangeCallback(IOIndex ioIndex) {
 
+void divisionChangeCallback(IOIndex ioIndex) {
+    DivisionState &divisionState = state.getDivider(ioIndex);
+    uint8_t divisionPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    DisplayService::printLine(divisionPrint, PrintType::Div);
 }
-// TODO: it can't be triggered in HeldDown state as state machine isn't active before reset or power on
+
+void divisionDisplayCallback(IOIndex ioIndex) {
+    DivisionState &divisionState = state.getDivider(ioIndex);
+
+    DisplayService::printLine(
+            DivisionService::getDivisionPrint(divisionState),
+            PrintType::Div
+    );
+}
+
+// TODO
 void clockModeChangeCallback(ClockMode clockMode) {
     state.setClockMode(clockMode);
 }
 //////////////////////////////////////////////////////////////////////////////
-
 
 
 void setup() {
@@ -66,50 +62,49 @@ void loop() {
         /* CLEAR BITS IN PORTB REGISTER */
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
 
-        if (DivisionService::tick(state.getDivider(DIVIDER1))) {
+        if (DivisionService::tick(state.getDivider(IOIndex::ONE))) {
             PORTB |= (1 << PORTB0);
         }
 
-        if (DivisionService::tick(state.getDivider(DIVIDER2))) {
+        if (DivisionService::tick(state.getDivider(IOIndex::TWO))) {
             PORTB |= (1 << PORTB1);
         }
 
-        if (DivisionService::tick(state.getDivider(DIVIDER3))) {
+        if (DivisionService::tick(state.getDivider(IOIndex::THREE))) {
             PORTB |= (1 << PORTB2);
         }
 
-        if (DivisionService::tick(state.getDivider(DIVIDER4))) {
+        if (DivisionService::tick(state.getDivider(IOIndex::FOUR))) {
             PORTB |= (1 << PORTB3);
         }
 
         state.setPulseReceived(0);
     }
 
-    state.setBpm(TimerManager::convert_adc_read_to_bpm(KnobService::getValue()));
+    // NOTE 📝 this is really just tracking if there were changes in the BPM value. state has internal checks for it
+    // I am not sure how much of a performance boost we would get if we tracked this with a local var in main. TODO
+    state.setBpm(TimerManager::convertAdcReadToBpm(
+            KnobService::getValue())
+    );
     if (state.bpmChanged()) {
-        uint16_t timer_interval = TimerManager::get_timer_interval_microseconds(
+        uint16_t timer_interval = TimerManager::getTimerIntervalMicroseconds(
                 state.getBpm(),
                 state.getPpqn()
         );
-        TimerManager::update_timer1_interval(timer_interval);
+        TimerManager::updateTimer1Interval(timer_interval);
         DisplayService::printLine(state.getBpm(), BPM);
     }
 
-    // TODO: important! loop is not helping with performance! its just to keep things tidy in development for NOW!!!
-//    for (int i = 0; i < 5; i++) {
-//        state.getButton(i).updateState(ButtonService::readPin(i + 4));
-//    }
-
-    state.getButton(BUTTON1).updateState(
-        ButtonService::readPin(7)
-        );
-    state.getButton(BUTTON2).updateState(
+    state.getButton(IOIndex::ONE).updateState(
+            ButtonService::readPin(7)
+    );
+    state.getButton(IOIndex::TWO).updateState(
             ButtonService::readPin(6)
     );
-    state.getButton(BUTTON3).updateState(
+    state.getButton(IOIndex::THREE).updateState(
             ButtonService::readPin(5)
     );
-    state.getButton(BUTTON4).updateState(
+    state.getButton(IOIndex::FOUR).updateState(
             ButtonService::readPin(4)
     );
 }
