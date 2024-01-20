@@ -14,9 +14,13 @@ constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
 constexpr unsigned long DEBOUNCE_DELAY = 50;
 constexpr unsigned long HOLD_DELAY = 1000;
+
 typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
+
 typedef void (*DivisionChangeCallback)(IOIndex);
+
 typedef void (*ClockModeChangeCallback)(ClockMode);
+
 typedef void (*DivisionDisplayCallback)(IOIndex);
 
 struct ButtonState {
@@ -59,29 +63,36 @@ struct ButtonState {
     }
 
 
+    void getNextStateFromReleased(uint8_t pinValue) {
+        if (pinValue == PRESSED) {
+            state = State::DebouncePress;
+            lastDebounceTime = mMillis();
+            DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::DebouncePress]");
+        }
+    }
+
+    void getNextStateFromDebouncePressed(uint8_t pinValue) {
+        if ((mMillis() - lastDebounceTime) > debounceDelay) {
+            if (pinValue == PRESSED) {
+                state = State::Pressed;
+                lastHoldTime = mMillis();
+                divisionDisplayCallback(ioIndex);
+                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
+            } else {
+                state = State::Released;
+            }
+        }
+    }
+
     ButtonState(IOIndex ioIndex) : ioIndex(ioIndex) {}
 
-    void updateState(int pinValue) {
+    void updateState(uint8_t pinValue) {
         switch (state) {
             case State::Released:
-                if (pinValue == PRESSED) {
-                    state = State::DebouncePress;
-                    lastDebounceTime = mMillis();
-                    DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::DebouncePress]");
-                }
-
+                getNextStateFromReleased(pinValue);
                 break;
             case State::DebouncePress:
-                if ((mMillis() - lastDebounceTime) > debounceDelay) {
-                    if (pinValue == PRESSED) {
-                        state = State::Pressed;
-                        lastHoldTime = mMillis();
-                        divisionDisplayCallback(ioIndex);
-                        DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
-                    } else {
-                        state = State::Released;
-                    }
-                }
+                getNextStateFromDebouncePressed(pinValue);
                 break;
             case State::Pressed:
                 if (pinValue == RELEASED) {

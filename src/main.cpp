@@ -10,6 +10,14 @@
 
 ProgramState state;
 
+/**
+ * @brief Callback function used to handle the change in pulse.
+ *
+ * This callback function is invoked when the pulse changes. It updates the program state
+ * to indicate that a pulse has been received.
+ *
+ * @note This function modifies the program state.
+ */
 // 👇 Program state is referenced by all 3️⃣ of these callbacks ☎️
 // GLOBAL CALLBACKS
 // ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
@@ -17,18 +25,47 @@ void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
 
+/**
+ * @brief Callback for changing the division mode of a divider.
+ *
+ * This function is called when the division mode is changed for a specific divider.
+ * It updates the division mode of each divider based on the given parameters.
+ *
+ * @param divisionMode The new division mode to be set.
+ * @param ioIndex The index of the divider in the program state.
+ *
+ * @note The division mode member needs to be added to the divider structure.
+ *
+ * @sa DivisionMode
+ * @sa IOIndex
+ */
 // TODO
 void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     // TODO use ioIndex to locate the divider in programState
     /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
 }
 
+/**
+ * @brief Callback function for division change.
+ *
+ * This function is called when there is a change in the division for a specific IO index. It increments the indexEndOfSteps
+ * value of the DivisionState and prints the updated value on the display.
+ *
+ * @param ioIndex The IO index for which the division is being changed.
+ */
 void divisionChangeCallback(IOIndex ioIndex) {
     DivisionState &divisionState = state.getDivider(ioIndex);
     uint8_t divisionPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
     DisplayService::printLine(divisionPrint, PrintType::Div, ioIndex);
 }
 
+/**
+ * @brief Callback function for displaying division value on the screen.
+ *
+ * This function is called to display the current division value on the screen.
+ *
+ * @param ioIndex The index of the input/output device.
+ */
 void divisionDisplayCallback(IOIndex ioIndex) {
     DivisionState &divisionState = state.getDivider(ioIndex);
 
@@ -39,12 +76,23 @@ void divisionDisplayCallback(IOIndex ioIndex) {
     );
 }
 
+/**
+ * @brief Callback function to handle clock mode change.
+ *
+ * This function is called when the clock mode is changed. It updates the clock mode
+ * in the program state object.
+ *
+ * @param clockMode The new clock mode to be set.
+ */
 // TODO
 void clockModeChangeCallback(ClockMode clockMode) {
     state.setClockMode(clockMode);
 }
 //////////////////////////////////////////////////////////////////////////////
 
+/**
+ * @brief Setup function for initializing various services and setting initial state.
+ */
 void setup() {
     DEBUG_SETUP;
     DisplayService::setup();
@@ -62,6 +110,24 @@ void setup() {
     DEBUG_MEMPRINT;
 }
 
+/**
+ * @brief This function is the main loop of the program.
+ *
+ * It performs the following tasks:
+ * 1. Clears the bits in the PORTB register.
+ * 2. Checks if a pulse has been received. If so, it updates the PORTB register based on the state of the dividers.
+ * 3. Checks if there has been a change in the BPM value. If so, it updates the timer interval and prints the BPM value on the display.
+ * 4. Updates the state of the buttons based on the pin readings.
+ *
+ * @note The function relies on the ProgramState object named 'state' to access and update the program state.
+ * @note The 'tick' function is defined in the DivisionService class and is used to calculate the tick value of a divider.
+ * @note The 'convertAdcReadToBpm' function is defined in the TimerManager class and is used to convert the ADC read value to the corresponding BPM value.
+ * @note The 'getValue' function is defined in the KnobService class and is used to read the value of the knob.
+ * @note The 'getTimerIntervalMicroseconds' function is defined in the TimerManager class and is used to calculate the timer interval in microseconds.
+ * @note The 'updateTimer1Interval' function is defined in the TimerManager class and is used to update the Timer1 interval.
+ * @note The 'printLine' function is defined in the DisplayService class and is used to print a value on the display.
+ * @note The 'readPin' function is defined in the ButtonService class and is used to read the state of a pin.
+ */
 void loop() {
     if (state.getPulseReceived() == 1) {
         /* CLEAR BITS IN PORTB REGISTER */

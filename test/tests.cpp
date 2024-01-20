@@ -15,7 +15,7 @@
 // 2. create a descriptive test_method_name_like_this that runs that helper.
 // 3. in either the helper, the test or both, create TEST_ASSERT_EQUAL calls on the expected output
 
-/* Helpers 🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️🛠️ */
+/* Helpers 🛠️🛠️🛠️ */
 enum Callback {
     DivisionModeChange,
     DivisionChange,
@@ -199,7 +199,6 @@ void test_transition_to_release() {
     commitReleaseButtonPress(buttonState, buttonState.mockMillis);
 }
 
-
 // ButtonState
 void test_transition_to_press_with_jitter() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
@@ -315,11 +314,11 @@ void test_division_change_callback() {
 int runUnityTests(void) {
     UNITY_BEGIN();
     // ButtonState
-//    RUN_TEST(test_transition_to_debounce_press);
-//    RUN_TEST(test_transition_to_pressed);
-//    RUN_TEST(test_transition_to_held);
-//    RUN_TEST(test_transition_to_debounce_release);
-//    RUN_TEST(test_transition_to_release);
+    RUN_TEST(test_transition_to_debounce_press);
+    RUN_TEST(test_transition_to_pressed);
+    RUN_TEST(test_transition_to_held);
+    RUN_TEST(test_transition_to_debounce_release);
+    RUN_TEST(test_transition_to_release);
 
     // DivisionState
     RUN_TEST(test_division_state_increment_index_end_of_steps);
