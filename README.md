@@ -1,17 +1,15 @@
-# Overview
-```mermaid
-stateDiagram-v2
-    [*] --> Released
-    Released --> DebouncePress: pinValue == 0
-    DebouncePress --> Pressed: time > debounceDelay && pinValue == 0
-    Pressed --> HeldDown: time > holdDelay
-    HeldDown --> DebounceRelease: pinValue == 1
-    Pressed --> DebounceRelease: pinValue == 1
-    DebounceRelease --> Released: time > debounceDelay && pinValue == 1
-    DebouncePress --> Released: time > debounceDelay && pinValue == 1
-    DebounceRelease --> Pressed: time > debounceDelay && pinValue == 0
-    Released --> [*]
-```
+### Various Diagrams and Definitions
+
+![image](state_machine.jpeg)
+
+## Explanation of each State 👆
+1. **Released** - Default state, idle state of button before press
+2. **DebouncePress**  - State in between released and pressed, we check for jitter interference here before committing to a 
+full press
+3. **Pressed**  - We have succesfully debounced any jitter and can confidently say that the button is pressed. Big note: this doesn't really do any single thing. this just preceded Release which is the point at which something is actually done.
+4. **HeldDown** - We have stayed in pressed state for a long time...
+4. **Operation Canceled** - We are cancelling the current operation because the button was not released within a resonable time...
+4. **DebounceRelease** - State just before release 
 
 # ButtonState -> ProgramState communication schema
 ```mermaid
@@ -53,8 +51,13 @@ classDiagram
     GlobalCallBack --|> DivisionState : changes divisions
 ```
 
-Callback explanation.
-There are 3 callbacks, we could have probably been better off just pulling ButtonState
-about the current state of the classes. Right now, when we change the state of a DivisionState
-we are doing it via a callback.
-For instance, the # clk
+TODO:
+Callback divisionDisplayCallback
+is right now being called in the HELDDOWN 
+state machine location. It should not, it should
+immediately show when you enter pressed state, then
+we need a global flag to indicate that the button
+press expired for that particular button when the
+HELDDOWN state is entered for that IOIndex
+
+

@@ -44,7 +44,7 @@ struct ButtonState {
     DivisionChangeCallback divisionChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
     DivisionDisplayCallback divisionDisplayCallback = nullptr;
-
+    // Held down, operation cancelled 🚫👇
     // 🤡 mock millis() so we can test state machine
 #ifdef TEST_BUILD
     unsigned long mockMillis = 0;
@@ -76,6 +76,7 @@ struct ButtonState {
                     if (pinValue == PRESSED) {
                         state = State::Pressed;
                         lastHoldTime = mMillis();
+                        divisionDisplayCallback(ioIndex);
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
                     } else {
                         state = State::Released;
@@ -104,6 +105,8 @@ struct ButtonState {
                     if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
                         clockModeChangeCallback(ClockMode::External);
                     }
+
+
                     ///////////////////////////////////////////////////
                 }
 
@@ -120,6 +123,7 @@ struct ButtonState {
                     } else {
                         state = State::Pressed;
                         lastHoldTime = mMillis();
+                        divisionDisplayCallback(ioIndex);
                         DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
                     }
                 }

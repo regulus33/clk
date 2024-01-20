@@ -29,6 +29,8 @@ private:
     /* CONNECTED TO GLOBAL CALLBACK */
     ClockMode clockMode = ClockMode::Internal;
 
+
+
 public:
     // TODO: this kind of sucks... Ideally this would be empty until explicityl updated in main.setup()
     ProgramState() : dividers{

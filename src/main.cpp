@@ -26,7 +26,7 @@ void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
 void divisionChangeCallback(IOIndex ioIndex) {
     DivisionState &divisionState = state.getDivider(ioIndex);
     uint8_t divisionPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
-    DisplayService::printLine(divisionPrint, PrintType::Div);
+    DisplayService::printLine(divisionPrint, PrintType::Div, ioIndex);
 }
 
 void divisionDisplayCallback(IOIndex ioIndex) {
@@ -34,7 +34,8 @@ void divisionDisplayCallback(IOIndex ioIndex) {
 
     DisplayService::printLine(
             DivisionService::getDivisionPrint(divisionState),
-            PrintType::Div
+            PrintType::Div,
+            ioIndex
     );
 }
 
@@ -44,7 +45,6 @@ void clockModeChangeCallback(ClockMode clockMode) {
 }
 //////////////////////////////////////////////////////////////////////////////
 
-
 void setup() {
     DEBUG_SETUP;
     DisplayService::setup();
@@ -53,7 +53,12 @@ void setup() {
     TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
     DivisionService::setup();
     state.setBpm(120);
-    state.setButtonTriggeredCallbacks(divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
+    state.setButtonTriggeredCallbacks(
+            divisionModeChangeCallback,
+            divisionChangeCallback,
+            clockModeChangeCallback,
+            divisionDisplayCallback
+    );
     DEBUG_MEMPRINT;
 }
 
