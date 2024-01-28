@@ -155,14 +155,14 @@ void commitReleaseButtonPress(ButtonState &buttonState, unsigned long lastTime) 
 /* Tests */
 //🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪
 // ButtonState
-void test_transition_to_debounce_press() {
+void test_sm_transition_to_debounce_press() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
 }
 
 // ButtonState
-void test_transition_to_pressed() {
+void test_sm_transition_to_pressed() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
@@ -170,7 +170,15 @@ void test_transition_to_pressed() {
 }
 
 // ButtonState
-void test_transition_to_held() {
+void test_sm_transition_to_held() {
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
+    pressButton(buttonState);
+    commitButtonPress(buttonState);
+    holdButtonPress(buttonState);
+}
+
+void test_held_triggers_operation_canceled() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
@@ -179,7 +187,7 @@ void test_transition_to_held() {
 }
 
 // ButtonState
-void test_transition_to_debounce_release() {
+void test_sm_transition_to_debounce_release() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
@@ -189,7 +197,7 @@ void test_transition_to_debounce_release() {
 }
 
 // ButtonState
-void test_transition_to_release() {
+void test_sm_transition_to_release() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
@@ -232,6 +240,8 @@ void test_division_state_increment_index_end_of_steps() {
     TEST_ASSERT_EQUAL(15, divisionState.indexEndOfSteps);
     TEST_ASSERT_EQUAL(17, toPrint);
 }
+
+
 
 // KnobService
 void test_knob_setup() {
@@ -302,7 +312,7 @@ void test_child_buttons() {
     TEST_ASSERT_EQUAL(programState.getButton(0).state, ButtonState::State::Released);
 }
 
-void test_division_change_callback() {
+void test_sm_calls_division_change_callback() {
     ButtonState buttonState = ButtonState(IOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
@@ -310,15 +320,27 @@ void test_division_change_callback() {
     TEST_ASSERT_EQUAL(state.lastCallbackCalled, Callback::DivisionDisplay);
 }
 
+void test_sm_held_down_state_does_not_call_division_change_callback() {
+    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    setupCallbacks(buttonState);
+    pressButton(buttonState);
+    commitButtonPress(buttonState);
+    holdButtonPress(buttonState);
+
+
+
+
+    TEST_ASSERT_NOT_EQUAL(state.lastCallbackCalled, Callback::DivisionChange);
+}
 
 int runUnityTests(void) {
     UNITY_BEGIN();
-    // ButtonState
-    RUN_TEST(test_transition_to_debounce_press);
-    RUN_TEST(test_transition_to_pressed);
-    RUN_TEST(test_transition_to_held);
-    RUN_TEST(test_transition_to_debounce_release);
-    RUN_TEST(test_transition_to_release);
+    // State Machine in ButtonState
+    RUN_TEST(test_sm_transition_to_debounce_press);
+    RUN_TEST(test_sm_transition_to_pressed);
+    RUN_TEST(test_sm_transition_to_held);
+    RUN_TEST(test_sm_transition_to_debounce_release);
+    RUN_TEST(test_sm_transition_to_release);
 
     // DivisionState
     RUN_TEST(test_division_state_increment_index_end_of_steps);
@@ -341,7 +363,10 @@ int runUnityTests(void) {
     RUN_TEST(test_button_read_pins_4_to_7);
 
     // Callbacks
-    RUN_TEST(test_division_change_callback);
+    RUN_TEST(test_sm_calls_division_change_callback);
+
+    RUN_TEST(test_sm_held_down_state_does_not_call_division_change_callback);
+
     UNITY_END();
     return 1;
 }

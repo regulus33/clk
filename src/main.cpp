@@ -11,34 +11,15 @@
 ProgramState state;
 
 /**
- * @brief Callback function used to handle the change in pulse.
+ * @brief Callback function used to handle the timer interrupt service routine.
  *
  * This callback function is invoked when the pulse changes. It updates the program state
- * to indicate that a pulse has been received.
- *
- * @note This function modifies the program state.
+ * to indicate that a clock pulse has been received.
  */
-// 👇 Program state is referenced by all 3️⃣ of these callbacks ☎️
-// GLOBAL CALLBACKS
-// ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
 void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
 
-/**
- * @brief Callback for changing the division mode of a divider.
- *
- * This function is called when the division mode is changed for a specific divider.
- * It updates the division mode of each divider based on the given parameters.
- *
- * @param divisionMode The new division mode to be set.
- * @param ioIndex The index of the divider in the program state.
- *
- * @note The division mode member needs to be added to the divider structure.
- *
- * @sa DivisionMode
- * @sa IOIndex
- */
 // TODO
 void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     // TODO use ioIndex to locate the divider in programState
@@ -76,23 +57,12 @@ void divisionDisplayCallback(IOIndex ioIndex) {
     );
 }
 
-/**
- * @brief Callback function to handle clock mode change.
- *
- * This function is called when the clock mode is changed. It updates the clock mode
- * in the program state object.
- *
- * @param clockMode The new clock mode to be set.
- */
+
 // TODO
 void clockModeChangeCallback(ClockMode clockMode) {
     state.setClockMode(clockMode);
 }
-//////////////////////////////////////////////////////////////////////////////
 
-/**
- * @brief Setup function for initializing various services and setting initial state.
- */
 void setup() {
     DEBUG_SETUP;
     DisplayService::setup();
@@ -152,8 +122,7 @@ void loop() {
         state.setPulseReceived(0);
     }
 
-    // NOTE 📝 this is really just tracking if there were changes in the BPM value. state has internal checks for it
-    // I am not sure how much of a performance boost we would get if we tracked this with a local var in main. TODO
+    // NOTE 📝 this is really just tracking if there were changes in the BPM value. state has internal checks for it.
     state.setBpm(TimerManager::convertAdcReadToBpm(
             KnobService::getValue())
     );

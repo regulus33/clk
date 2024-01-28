@@ -24,26 +24,22 @@ typedef void (*ClockModeChangeCallback)(ClockMode);
 typedef void (*DivisionDisplayCallback)(IOIndex);
 
 struct ButtonState {
-    ///////////////////
-    // FOR 🍐弐 pairing with Divison State
-    IOIndex ioIndex; // 🗂️
-    //////////////////
-    // 💾 STATE
-    enum class State {
-        Released, DebouncePress, Pressed, HeldDown, DebounceRelease
-    };
+    // physical button mapping
+    IOIndex ioIndex;
+    // states
+    enum class State { Released, DebouncePress, Pressed, HeldDown, DebounceRelease };
+    // initial state
     State state = State::Released;
-    ///////////////////////////////////////////////////
-    // STATE MACHINE DEBOUNCE TIMERS ⏲️ 🚫-> 🎾
+
+    // when we "debounce" the goal is to make sure that when a state is entered it more or less stays that way.
     unsigned long lastDebounceTime;
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
     unsigned long lastHoldTime{};
     const unsigned long holdDelay = HOLD_DELAY;
-    ///////////////////////////////////////////////////
-    // 🚩 for GLOBAL 🌎 CLOCK MODE change, only check once on startup...
-    uint8_t startupFlagFlipped = false;
-    ///////////////////////////////////
-    // ‼️callbacks ☎️
+    uint8_t heldDownWasPressed = false;
+
+//    uint8_t startupFlagFlipped = false;
+
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     DivisionChangeCallback divisionChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
@@ -62,7 +58,6 @@ struct ButtonState {
 #endif
     }
 
-
     void getNextStateFromReleased(uint8_t pinValue) {
         if (pinValue == PRESSED) {
             state = State::DebouncePress;
@@ -75,12 +70,63 @@ struct ButtonState {
         if ((mMillis() - lastDebounceTime) > debounceDelay) {
             if (pinValue == PRESSED) {
                 state = State::Pressed;
+                heldDownWasPressed = false;
                 lastHoldTime = mMillis();
                 divisionDisplayCallback(ioIndex);
                 DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
             } else {
+                // this transition does not represent an action, it is just to return to default nothing state
                 state = State::Released;
             }
+        }
+    }
+
+    void getNextStateFromPressed(uint8_t pinValue) {
+        if (pinValue == RELEASED) {
+            state = State::DebounceRelease;
+            lastDebounceTime = mMillis();
+            DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
+        } else {
+            if (mMillis() - lastHoldTime > holdDelay) {
+                state = State::HeldDown;
+                heldDownWasPressed = true;
+                DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::HeldDown]");
+            }
+        }
+    }
+
+    void getNextStateFromDebounceRelease(uint8_t pinValue) {
+        if ((mMillis() - lastDebounceTime) > debounceDelay) {
+            if (pinValue == RELEASED) {
+                state = State::Released;
+                DEBUG_PRINT("[CALLBACK][ABOUT_TO_CALL]divisionChangeCallback] - ioIndex");
+                DEBUG_PRINTLN_VAR(ioIndex);
+                if(!heldDownWasPressed) {
+                    divisionChangeCallback(ioIndex);
+                } else {
+                    DEBUG_PRINT("[BUTTON][STATE_CHANGE][HELD_DOWN_WAS_PRESSED] - SKIPPING ACTION!");
+                }
+
+                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
+            } else {
+                state = State::Pressed;
+                heldDownWasPressed = false;
+                lastHoldTime = mMillis();
+                divisionDisplayCallback(ioIndex);
+                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
+            }
+        }
+    }
+
+    void getNextStateFromHeldDown(uint8_t pinValue) {
+        if (pinValue == RELEASED) {
+            state = State::DebounceRelease;
+            lastDebounceTime = mMillis();
+            DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
+//TODO
+//                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
+//                        clockModeChangeCallback(ClockMode::External);
+//                    }
         }
     }
 
@@ -95,54 +141,16 @@ struct ButtonState {
                 getNextStateFromDebouncePressed(pinValue);
                 break;
             case State::Pressed:
-                if (pinValue == RELEASED) {
-                    state = State::DebounceRelease;
-                    lastDebounceTime = mMillis();
-                    DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-                } else { // pinValue == RELEASED
-                    if (mMillis() - lastHoldTime > holdDelay) {
-                        state = State::HeldDown;
-                        DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::HeldDown]");
-                    }
-                }
+                getNextStateFromPressed(pinValue);
                 break;
             case State::HeldDown:
-                if (pinValue == RELEASED) {
-                    state = State::DebounceRelease;
-                    lastDebounceTime = mMillis();
-                    DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-                    // ‼️This is how we switch from internal 🕰️to external interrupt (jack in +5v pulse) 🌍
-                    // ☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️☎️
-                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
-                        clockModeChangeCallback(ClockMode::External);
-                    }
-
-
-                    ///////////////////////////////////////////////////
-                }
-
+                getNextStateFromHeldDown(pinValue);
                 break;
             case State::DebounceRelease:
-                if ((mMillis() - lastDebounceTime) > debounceDelay) {
-                    if (pinValue == RELEASED) {
-                        state = State::Released;
-                        DEBUG_PRINT("[CALLBACK][ABOUT_TO_CALL]divisionChangeCallback] - ioIndex");
-                        DEBUG_PRINTLN_VAR(ioIndex);
-
-                        divisionChangeCallback(ioIndex);
-                        DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
-                    } else {
-                        state = State::Pressed;
-                        lastHoldTime = mMillis();
-                        divisionDisplayCallback(ioIndex);
-                        DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
-                    }
-                }
-
+                getNextStateFromDebounceRelease(pinValue);
                 break;
         }
     }
-
 };
 
 #endif //CLK_BUTTON_STATE_H
