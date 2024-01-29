@@ -22,7 +22,7 @@ class DisplayService {
 private:
     static U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;  // Static OLED object
 
-    static const char *getFormat(PrintType print_type, IOIndex index = IOIndex::ONE) {
+    static const char *getFormat(PrintType print_type, GPIOIndex index = GPIOIndex::ONE) {
         switch (print_type) {
 // Think of these a bit like the arguments to strftime in ruby
             case BPM:
@@ -36,12 +36,12 @@ private:
         }
     }
 
-    static const char *getDividerFormatString(IOIndex index) {
+    static const char *getDividerFormatString(GPIOIndex index) {
         return divStrings[index];
     }
 
 public:
-    static void buildPrintString(PrintType print_type, uint8_t value, char *char_buffer, IOIndex index = IOIndex::ONE) {
+    static void buildPrintString(PrintType print_type, uint8_t value, char *char_buffer, GPIOIndex index = GPIOIndex::ONE) {
         const char *format = getFormat(print_type, index);
         sprintf(char_buffer, format, value);
     }
@@ -54,7 +54,7 @@ public:
         DEBUG_PRINTLN("[OLED_DISPLAY][SETUP]");
     }
 
-    static void printLine(uint8_t value, PrintType print_type = BPM, IOIndex index = IOIndex::ONE) {
+    static void printLine(uint8_t value, PrintType print_type = BPM, GPIOIndex index = GPIOIndex::ONE) {
         char char_buffer[17];
         buildPrintString(print_type, value, char_buffer, index);
         u8x8.draw2x2String(0, 3, char_buffer);

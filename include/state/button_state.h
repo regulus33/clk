@@ -6,7 +6,7 @@
 
 #include "Arduino.h"
 #include "development/debug_utils.h"
-#include "io_index.h"
+#include "gpio_index.h"
 #include "clock_mode.h"
 #include "division_mode.h"
 
@@ -15,15 +15,15 @@ constexpr uint8_t RELEASED = 1;
 constexpr unsigned long DEBOUNCE_DELAY = 50;
 constexpr unsigned long HOLD_DELAY = 1000;
 
-typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
+typedef void (*DivisionModeChangeCallback)(DivisionMode, GPIOIndex);
 
-typedef void (*DivisionChangeCallback)(IOIndex, uint8_t);
+typedef void (*DivisionChangeCallback)(GPIOIndex, uint8_t);
 
 typedef void (*ClockModeChangeCallback)(ClockMode);
 
 struct ButtonState {
     // physical button mapping
-    IOIndex ioIndex;
+    GPIOIndex ioIndex;
     // states
     enum class State { Released, DebouncePress, Pressed, HeldDown, DebounceRelease };
     // initial state
@@ -120,13 +120,13 @@ struct ButtonState {
             lastDebounceTime = mMillis();
             DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
 //TODO
-//                    if (!startupFlagFlipped && ioIndex == IOIndex::ONE) {
+//                    if (!startupFlagFlipped && ioIndex == GPIOIndex::ONE) {
 //                        clockModeChangeCallback(ClockMode::External);
 //                    }
         }
     }
 
-    ButtonState(IOIndex ioIndex) : ioIndex(ioIndex) {}
+    ButtonState(GPIOIndex ioIndex) : ioIndex(ioIndex) {}
 
     void updateState(uint8_t pinValue) {
         switch (state) {

@@ -48,7 +48,7 @@ classDiagram
     }
     
     class ButtonState {
-        +IOIndex ioIndex
+        +GPIOIndex ioIndex
         -void((*onClockModeChange)(ClockMode))
         -void((*onDivisionChange)(uint8_t))
         -void((*onDivisionModeChange)(DivsionMode))

@@ -31,10 +31,10 @@ struct MockProgramState {
 MockProgramState state;
 
 // These are mocks!
-void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
+void divisionModeChangeCallback(DivisionMode divisionMode, GPIOIndex ioIndex) {
     state.lastCallbackCalled = Callback::DivisionModeChange;
 }
-void divisionChangeCallback(IOIndex ioIndex, uint8_t incrementEndOfSteps) {
+void divisionChangeCallback(GPIOIndex ioIndex, uint8_t incrementEndOfSteps) {
     if(incrementEndOfSteps == true) {
         state.lastCallbackCalled = Callback::DivisionChange;
     } else {
@@ -49,7 +49,7 @@ void clockModeChangeCallback(ClockMode clockMode) {
 }
 
 void runDividerTickForDivisionOf(uint8_t num) {
-    DivisionState divisionState = {IOIndex::ONE, 0b0000000000000001, num, 0};
+    DivisionState divisionState = {GPIOIndex::ONE, 0b0000000000000001, num, 0};
     TEST_ASSERT_TRUE(DivisionService::tick(divisionState));
     for (int i = 0; i < num; i++) {
         TEST_ASSERT_FALSE(DivisionService::tick(divisionState));
@@ -158,14 +158,14 @@ void commitReleaseButtonPress(ButtonState &buttonState, unsigned long lastTime) 
 //🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪🧪
 // ButtonState
 void test_sm_transition_to_debounce_press() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
 }
 
 // ButtonState
 void test_sm_transition_to_pressed() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -173,7 +173,7 @@ void test_sm_transition_to_pressed() {
 
 // ButtonState
 void test_sm_transition_to_held() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -181,7 +181,7 @@ void test_sm_transition_to_held() {
 }
 
 void test_held_triggers_operation_canceled() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -190,7 +190,7 @@ void test_held_triggers_operation_canceled() {
 
 // ButtonState
 void test_sm_transition_to_debounce_release() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -200,7 +200,7 @@ void test_sm_transition_to_debounce_release() {
 
 // ButtonState
 void test_sm_transition_to_release() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -211,7 +211,7 @@ void test_sm_transition_to_release() {
 
 // ButtonState
 void test_transition_to_press_with_jitter() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
 }
@@ -225,7 +225,7 @@ void test_divisions_1_to_16() {
 
 void test_division_state_increment_index_end_of_steps() {
     // Normal case
-    DivisionState divisionState(IOIndex::ONE);
+    DivisionState divisionState(GPIOIndex::ONE);
     divisionState.indexEndOfSteps = 1;
     uint8_t  toPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
     TEST_ASSERT_EQUAL(2, divisionState.indexEndOfSteps);
@@ -299,14 +299,14 @@ void test_pulse_received_handling() {
 
 void test_io_index_assignment() {
     ProgramState programState;
-    TEST_ASSERT_EQUAL(programState.getDivider(0).ioIndex, IOIndex::ONE);
-    TEST_ASSERT_EQUAL(programState.getDivider(1).ioIndex, IOIndex::TWO);
-    TEST_ASSERT_EQUAL(programState.getDivider(2).ioIndex, IOIndex::THREE);
-    TEST_ASSERT_EQUAL(programState.getDivider(3).ioIndex, IOIndex::FOUR);
-    TEST_ASSERT_EQUAL(programState.getButton(0).ioIndex, IOIndex::ONE);
-    TEST_ASSERT_EQUAL(programState.getButton(1).ioIndex, IOIndex::TWO);
-    TEST_ASSERT_EQUAL(programState.getButton(2).ioIndex, IOIndex::THREE);
-    TEST_ASSERT_EQUAL(programState.getButton(3).ioIndex, IOIndex::FOUR);
+    TEST_ASSERT_EQUAL(programState.getDivider(0).ioIndex, GPIOIndex::ONE);
+    TEST_ASSERT_EQUAL(programState.getDivider(1).ioIndex, GPIOIndex::TWO);
+    TEST_ASSERT_EQUAL(programState.getDivider(2).ioIndex, GPIOIndex::THREE);
+    TEST_ASSERT_EQUAL(programState.getDivider(3).ioIndex, GPIOIndex::FOUR);
+    TEST_ASSERT_EQUAL(programState.getButton(0).ioIndex, GPIOIndex::ONE);
+    TEST_ASSERT_EQUAL(programState.getButton(1).ioIndex, GPIOIndex::TWO);
+    TEST_ASSERT_EQUAL(programState.getButton(2).ioIndex, GPIOIndex::THREE);
+    TEST_ASSERT_EQUAL(programState.getButton(3).ioIndex, GPIOIndex::FOUR);
 }
 
 void test_child_buttons() {
@@ -315,7 +315,7 @@ void test_child_buttons() {
 }
 
 void test_sm_calls_division_change_callback() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
@@ -323,7 +323,7 @@ void test_sm_calls_division_change_callback() {
 }
 
 void test_sm_held_down_state_does_not_call_division_change_callback() {
-    ButtonState buttonState = ButtonState(IOIndex::ONE);
+    ButtonState buttonState = ButtonState(GPIOIndex::ONE);
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);

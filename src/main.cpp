@@ -16,14 +16,11 @@ void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
 
-// TODO
-void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
-    // TODO use ioIndex to locate the divider in programState
-    /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
-}
+// TODO CHANGE THE CLOCK SOURCE IN HERE
+void divisionModeChangeCallback(DivisionMode divisionMode, GPIOIndex ioIndex) {}
 
 // create the clock divider division change callback
-void divisionChangeCallback(IOIndex ioIndex, uint8_t incrementEndOfSteps) {
+void divisionChangeCallback(GPIOIndex ioIndex, uint8_t incrementEndOfSteps) {
     uint8_t  divisionPrint;
     // get the divider based on the ioIndex which is passed in via an instance variable on the DivisionState instance.
     DivisionState &divisionState = state.getDivider(ioIndex);
@@ -51,38 +48,43 @@ void setup() {
     DEBUG_SETUP;
     // sets up pins and I2C stuff for the display
     DisplayService::setup();
-    //
+    // sets up or own adc logic for faster reads (no HAL used)
     KnobService::setup();
+    // Setup pin inputs
     ButtonService::setup();
+    // Attach our callback / ISR to the Timer1 library's timer1 service. It will call this function on each clock cycle
     TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
+    // set up the pins toward which the OUTPUTS of the program will funnel
     DivisionService::setup();
+    // set the initial bpm of the internal clocking mechanism
     state.setBpm(120);
-    state.setButtonTriggeredCallbacks(
-            divisionModeChangeCallback,
-            divisionChangeCallback,
-            clockModeChangeCallback
-    );
+    // set up the callbacks that should be connected to our buttons' state machines. Each button has a state machine
+    // that will call these functions at certain key state transition points.
+    state.setButtonTriggeredCallbacks(divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
+    // Print out how much memory we've used after all this setup process (if in debug mode)
     DEBUG_MEMPRINT;
 }
 
 void loop() {
+    // if the clock pulse is positive, we check out "dividers" and write to their bits in the register.
     if (state.getPulseReceived() == 1) {
-        /* CLEAR BITS IN PORTB REGISTER */
+        // clear the bits in the portB register first i.e. 00000000
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
 
-        if (DivisionService::tick(state.getDivider(IOIndex::ONE))) {
+        // if the DividerState associated with this IO pin is
+        if (DivisionService::tick(state.getDivider(GPIOIndex::ONE))) {
             PORTB |= (1 << PORTB0);
         }
 
-        if (DivisionService::tick(state.getDivider(IOIndex::TWO))) {
+        if (DivisionService::tick(state.getDivider(GPIOIndex::TWO))) {
             PORTB |= (1 << PORTB1);
         }
 
-        if (DivisionService::tick(state.getDivider(IOIndex::THREE))) {
+        if (DivisionService::tick(state.getDivider(GPIOIndex::THREE))) {
             PORTB |= (1 << PORTB2);
         }
 
-        if (DivisionService::tick(state.getDivider(IOIndex::FOUR))) {
+        if (DivisionService::tick(state.getDivider(GPIOIndex::FOUR))) {
             PORTB |= (1 << PORTB3);
         }
 
@@ -101,16 +103,16 @@ void loop() {
         DisplayService::printLine(state.getBpm(), BPM);
     }
 
-    state.getButton(IOIndex::ONE).updateState(
+    state.getButton(GPIOIndex::ONE).updateState(
             ButtonService::readPin(7)
     );
-    state.getButton(IOIndex::TWO).updateState(
+    state.getButton(GPIOIndex::TWO).updateState(
             ButtonService::readPin(6)
     );
-    state.getButton(IOIndex::THREE).updateState(
+    state.getButton(GPIOIndex::THREE).updateState(
             ButtonService::readPin(5)
     );
-    state.getButton(IOIndex::FOUR).updateState(
+    state.getButton(GPIOIndex::FOUR).updateState(
             ButtonService::readPin(4)
     );
 }

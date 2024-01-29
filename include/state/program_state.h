@@ -34,15 +34,15 @@ private:
 public:
     // TODO: this kind of sucks... Ideally this would be empty until explicityl updated in main.setup()
     ProgramState() : dividers{
-            {IOIndex::ONE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
-            {IOIndex::TWO, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
-            {IOIndex::THREE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
-            {IOIndex::FOUR, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
+            {GPIOIndex::ONE,   INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 1
+            {GPIOIndex::TWO,   INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 2
+            {GPIOIndex::THREE, INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}, // Divider 3
+            {GPIOIndex::FOUR,  INIT_DIV_STEPS, INIT_DIV_END_STEPS, INIT_INDEX_STEPS}  // Divider 4
     }, buttons{
-            {IOIndex::ONE},
-            {IOIndex::TWO},
-            {IOIndex::THREE},
-            {IOIndex::FOUR}
+            {GPIOIndex::ONE},
+            {GPIOIndex::TWO},
+            {GPIOIndex::THREE},
+            {GPIOIndex::FOUR}
     } {}
 
     /* CLOCK Methods */
