@@ -71,19 +71,22 @@ void loop() {
         // clear the bits in the portB register first i.e. 00000000
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
 
-        // if the DividerState associated with this IO pin is
+        // if the DividerState associated with this GPIO pin is 1, write 1 to the associated bit
         if (DivisionService::tick(state.getDivider(GPIOIndex::ONE))) {
             PORTB |= (1 << PORTB0);
         }
 
+        // if the DividerState associated with this GPIO pin is 2, write 1 to the associated bit
         if (DivisionService::tick(state.getDivider(GPIOIndex::TWO))) {
             PORTB |= (1 << PORTB1);
         }
 
+        // if the DividerState associated with this GPIO pin is 3, write 1 to the associated bit
         if (DivisionService::tick(state.getDivider(GPIOIndex::THREE))) {
             PORTB |= (1 << PORTB2);
         }
 
+        // if the DividerState associated with this GPIO pin is 4, write 1 to the associated bit
         if (DivisionService::tick(state.getDivider(GPIOIndex::FOUR))) {
             PORTB |= (1 << PORTB3);
         }
