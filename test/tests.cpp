@@ -65,7 +65,7 @@ uint8_t mockPinD() {
 uint8_t readPinRegister(uint8_t registerMockReturn, uint8_t pin) {
     // Set the mock PIND value to simulate button at pin 4 being pressed
     MockPinD::getInstance()->setMockValue(registerMockReturn);
-
+    //
     return ButtonService::readPin(pin);
 
 }
@@ -277,9 +277,9 @@ void test_knob_getValue_outside_deadzone() {
 // ProgramState
 void test_program_state_constructor() {
     ProgramState programState;
-    TEST_ASSERT_EQUAL(programState.getDivider(0).indexEndOfSteps, 2);
-    TEST_ASSERT_EQUAL(programState.getDivider(0).indexSteps, 0);
-    TEST_ASSERT_EQUAL(programState.getDivider(0).steps, 0b0000000000000001);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::ONE).indexEndOfSteps, 2);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::ONE).indexSteps, 0);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::ONE).steps, 0b0000000000000001);
 }
 
 // ProgramState
@@ -299,19 +299,19 @@ void test_pulse_received_handling() {
 
 void test_io_index_assignment() {
     ProgramState programState;
-    TEST_ASSERT_EQUAL(programState.getDivider(0).ioIndex, GPIOIndex::ONE);
-    TEST_ASSERT_EQUAL(programState.getDivider(1).ioIndex, GPIOIndex::TWO);
-    TEST_ASSERT_EQUAL(programState.getDivider(2).ioIndex, GPIOIndex::THREE);
-    TEST_ASSERT_EQUAL(programState.getDivider(3).ioIndex, GPIOIndex::FOUR);
-    TEST_ASSERT_EQUAL(programState.getButton(0).ioIndex, GPIOIndex::ONE);
-    TEST_ASSERT_EQUAL(programState.getButton(1).ioIndex, GPIOIndex::TWO);
-    TEST_ASSERT_EQUAL(programState.getButton(2).ioIndex, GPIOIndex::THREE);
-    TEST_ASSERT_EQUAL(programState.getButton(3).ioIndex, GPIOIndex::FOUR);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::ONE).ioIndex, GPIOIndex::ONE);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::TWO).ioIndex, GPIOIndex::TWO);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::THREE).ioIndex, GPIOIndex::THREE);
+    TEST_ASSERT_EQUAL(programState.divisionStateAtIndex(GPIOIndex::FOUR).ioIndex, GPIOIndex::FOUR);
+    TEST_ASSERT_EQUAL(programState.buttonStateAtIndex(GPIOIndex::ONE).ioIndex, GPIOIndex::ONE);
+    TEST_ASSERT_EQUAL(programState.buttonStateAtIndex(GPIOIndex::TWO).ioIndex, GPIOIndex::TWO);
+    TEST_ASSERT_EQUAL(programState.buttonStateAtIndex(GPIOIndex::THREE).ioIndex, GPIOIndex::THREE);
+    TEST_ASSERT_EQUAL(programState.buttonStateAtIndex(GPIOIndex::FOUR).ioIndex, GPIOIndex::FOUR);
 }
 
 void test_child_buttons() {
     ProgramState programState;
-    TEST_ASSERT_EQUAL(programState.getButton(0).state, ButtonState::State::Released);
+    TEST_ASSERT_EQUAL(programState.buttonStateAtIndex(GPIOIndex::ONE).state, ButtonState::State::Released);
 }
 
 void test_sm_calls_division_change_callback() {

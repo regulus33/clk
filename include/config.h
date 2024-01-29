@@ -1,0 +1,3 @@
+// changes what the screen considers to be 120 bpm vs 60 bpm etc....
+// you'll need to play with this number.
+constexpr uint8_t PPQN = 24;
