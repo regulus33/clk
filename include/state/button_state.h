@@ -17,11 +17,9 @@ constexpr unsigned long HOLD_DELAY = 1000;
 
 typedef void (*DivisionModeChangeCallback)(DivisionMode, IOIndex);
 
-typedef void (*DivisionChangeCallback)(IOIndex);
+typedef void (*DivisionChangeCallback)(IOIndex, uint8_t);
 
 typedef void (*ClockModeChangeCallback)(ClockMode);
-
-typedef void (*DivisionDisplayCallback)(IOIndex);
 
 struct ButtonState {
     // physical button mapping
@@ -43,7 +41,6 @@ struct ButtonState {
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     DivisionChangeCallback divisionChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
-    DivisionDisplayCallback divisionDisplayCallback = nullptr;
     // Held down, operation cancelled 🚫👇
     // 🤡 mock millis() so we can test state machine
 #ifdef TEST_BUILD
@@ -72,7 +69,7 @@ struct ButtonState {
                 state = State::Pressed;
                 heldDownWasPressed = false;
                 lastHoldTime = mMillis();
-                divisionDisplayCallback(ioIndex);
+                divisionChangeCallback(ioIndex, false);
                 DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
             } else {
                 // this transition does not represent an action, it is just to return to default nothing state
@@ -102,7 +99,7 @@ struct ButtonState {
                 DEBUG_PRINT("[CALLBACK][ABOUT_TO_CALL]divisionChangeCallback] - ioIndex");
                 DEBUG_PRINTLN_VAR(ioIndex);
                 if(!heldDownWasPressed) {
-                    divisionChangeCallback(ioIndex);
+                    divisionChangeCallback(ioIndex, true);
                 } else {
                     DEBUG_PRINT("[BUTTON][STATE_CHANGE][HELD_DOWN_WAS_PRESSED] - SKIPPING ACTION!");
                 }
@@ -112,7 +109,6 @@ struct ButtonState {
                 state = State::Pressed;
                 heldDownWasPressed = false;
                 lastHoldTime = mMillis();
-                divisionDisplayCallback(ioIndex);
                 DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
             }
         }

@@ -26,7 +26,7 @@ struct DivisionState {
               indexSteps(initIndexSteps
               ) {}
 
-      // returns a display 📿📺string for the screen to show the current division valye
+      // returns a display 📿📺string for the screen to show the current division value
 
 };
 

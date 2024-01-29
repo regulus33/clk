@@ -81,14 +81,12 @@ public:
     void setButtonTriggeredCallbacks(
             DivisionModeChangeCallback divisionModeChangeCallback,
             DivisionChangeCallback divisionChangeCallback,
-            ClockModeChangeCallback clockModeChangeCallback,
-            DivisionDisplayCallback divisionDisplayCallback
+            ClockModeChangeCallback clockModeChangeCallback
             ) {
           for(auto & button : buttons) {
               button.divisionChangeCallback = divisionChangeCallback;
               button.divisionModeChangeCallback = divisionModeChangeCallback;
               button.clockModeChangeCallback = clockModeChangeCallback;
-              button.divisionDisplayCallback = divisionDisplayCallback;
           }
     }
 

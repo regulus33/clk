@@ -8,14 +8,10 @@
 
 #define INITIAL_INTERVAL 1000
 
+// Initialize container for all our program state
 ProgramState state;
 
-/**
- * @brief Callback function used to handle the timer interrupt service routine.
- *
- * This callback function is invoked when the pulse changes. It updates the program state
- * to indicate that a clock pulse has been received.
- */
+// create the main callback aka interrupt service routine for the clock generator.
 void pulseChangeCallback() {
     state.setPulseReceived(1);
 }
@@ -26,46 +22,36 @@ void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     /// TODO update the DivisionMode of each divider (divisionMode member needs to be made still)
 }
 
-/**
- * @brief Callback function for division change.
- *
- * This function is called when there is a change in the division for a specific IO index. It increments the indexEndOfSteps
- * value of the DivisionState and prints the updated value on the display.
- *
- * @param ioIndex The IO index for which the division is being changed.
- */
-void divisionChangeCallback(IOIndex ioIndex) {
+// create the clock divider division change callback
+void divisionChangeCallback(IOIndex ioIndex, uint8_t incrementEndOfSteps) {
+    uint8_t  divisionPrint;
+    // get the divider based on the ioIndex which is passed in via an instance variable on the DivisionState instance.
     DivisionState &divisionState = state.getDivider(ioIndex);
-    uint8_t divisionPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    // Since we also use this method to only print to the display and not increment, we check if an argument
+    // to disable incrementation was provided.
+    if (incrementEndOfSteps == true) {
+        // get the "string" like thing to print to the oled display representing the divider and it's new state
+        divisionPrint = DivisionService::incrementIndexEndOfSteps(divisionState);
+    } else {
+        // only print the current state of the divider
+        divisionPrint = DivisionService::getDivisionPrint(divisionState);
+    }
+
+    // print the above mentioned string
     DisplayService::printLine(divisionPrint, PrintType::Div, ioIndex);
 }
 
-/**
- * @brief Callback function for displaying division value on the screen.
- *
- * This function is called to display the current division value on the screen.
- *
- * @param ioIndex The index of the input/output device.
- */
-void divisionDisplayCallback(IOIndex ioIndex) {
-    DivisionState &divisionState = state.getDivider(ioIndex);
-
-    DisplayService::printLine(
-            DivisionService::getDivisionPrint(divisionState),
-            PrintType::Div,
-            ioIndex
-    );
-}
-
-
-// TODO
+// TODO NOT IMPLEMENTED
 void clockModeChangeCallback(ClockMode clockMode) {
     state.setClockMode(clockMode);
 }
 
 void setup() {
+    // sets up some logging stuff if building with debug flags
     DEBUG_SETUP;
+    // sets up pins and I2C stuff for the display
     DisplayService::setup();
+    //
     KnobService::setup();
     ButtonService::setup();
     TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
@@ -74,30 +60,11 @@ void setup() {
     state.setButtonTriggeredCallbacks(
             divisionModeChangeCallback,
             divisionChangeCallback,
-            clockModeChangeCallback,
-            divisionDisplayCallback
+            clockModeChangeCallback
     );
     DEBUG_MEMPRINT;
 }
 
-/**
- * @brief This function is the main loop of the program.
- *
- * It performs the following tasks:
- * 1. Clears the bits in the PORTB register.
- * 2. Checks if a pulse has been received. If so, it updates the PORTB register based on the state of the dividers.
- * 3. Checks if there has been a change in the BPM value. If so, it updates the timer interval and prints the BPM value on the display.
- * 4. Updates the state of the buttons based on the pin readings.
- *
- * @note The function relies on the ProgramState object named 'state' to access and update the program state.
- * @note The 'tick' function is defined in the DivisionService class and is used to calculate the tick value of a divider.
- * @note The 'convertAdcReadToBpm' function is defined in the TimerManager class and is used to convert the ADC read value to the corresponding BPM value.
- * @note The 'getValue' function is defined in the KnobService class and is used to read the value of the knob.
- * @note The 'getTimerIntervalMicroseconds' function is defined in the TimerManager class and is used to calculate the timer interval in microseconds.
- * @note The 'updateTimer1Interval' function is defined in the TimerManager class and is used to update the Timer1 interval.
- * @note The 'printLine' function is defined in the DisplayService class and is used to print a value on the display.
- * @note The 'readPin' function is defined in the ButtonService class and is used to read the state of a pin.
- */
 void loop() {
     if (state.getPulseReceived() == 1) {
         /* CLEAR BITS IN PORTB REGISTER */
@@ -122,7 +89,6 @@ void loop() {
         state.setPulseReceived(0);
     }
 
-    // NOTE 📝 this is really just tracking if there were changes in the BPM value. state has internal checks for it.
     state.setBpm(TimerManager::convertAdcReadToBpm(
             KnobService::getValue())
     );

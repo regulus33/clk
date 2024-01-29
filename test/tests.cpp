@@ -19,7 +19,7 @@
 enum Callback {
     DivisionModeChange,
     DivisionChange,
-    DivisionDisplay,
+    DivisionChangeNixIncrementEndOfSteps, // this
     ClockModeChange,
     None
 };
@@ -34,12 +34,15 @@ MockProgramState state;
 void divisionModeChangeCallback(DivisionMode divisionMode, IOIndex ioIndex) {
     state.lastCallbackCalled = Callback::DivisionModeChange;
 }
-void divisionChangeCallback(IOIndex ioIndex) {
-    state.lastCallbackCalled = Callback::DivisionChange;
+void divisionChangeCallback(IOIndex ioIndex, uint8_t incrementEndOfSteps) {
+    if(incrementEndOfSteps == true) {
+        state.lastCallbackCalled = Callback::DivisionChange;
+    } else {
+        state.lastCallbackCalled = Callback::DivisionChangeNixIncrementEndOfSteps;
+    }
+
 }
-void divisionDisplayCallback(IOIndex ioIndex) {
-    state.lastCallbackCalled = Callback::DivisionDisplay;
-}
+
 // TODO: it can't be triggered in HeldDown state as state machine isn't active before reset or power on
 void clockModeChangeCallback(ClockMode clockMode) {
     state.lastCallbackCalled = Callback::ClockModeChange;
@@ -102,7 +105,6 @@ void setupCallbacks(ButtonState& buttonState) {
     buttonState.divisionChangeCallback = divisionChangeCallback;
     buttonState.divisionModeChangeCallback = divisionModeChangeCallback;
     buttonState.clockModeChangeCallback = clockModeChangeCallback;
-    buttonState.divisionDisplayCallback = divisionDisplayCallback;
 }
 
 void updateButton(
@@ -317,7 +319,7 @@ void test_sm_calls_division_change_callback() {
     setupCallbacks(buttonState);
     pressButton(buttonState);
     commitButtonPress(buttonState);
-    TEST_ASSERT_EQUAL(state.lastCallbackCalled, Callback::DivisionDisplay);
+    TEST_ASSERT_EQUAL(state.lastCallbackCalled, Callback::DivisionChangeNixIncrementEndOfSteps);
 }
 
 void test_sm_held_down_state_does_not_call_division_change_callback() {

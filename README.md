@@ -1,6 +1,14 @@
+# How it works
+
+Terms:
+
+
+**Divider** - A physical pin / output jack that pulses out +5v and 0v at a rate which is 1/n of the master clock where n
+is the Divider's 
+
 ### Various Diagrams and Definitions
 
-# Overview
+# Visual Overview
 ```mermaid
 stateDiagram-v2
     [*] --> Released
@@ -62,14 +70,5 @@ classDiagram
     GlobalCallBack --|> DivisionState : changes division modes
     GlobalCallBack --|> DivisionState : changes divisions
 ```
-
-TODO:
-Callback divisionDisplayCallback
-is right now being called in the HELDDOWN 
-state machine location. It should not, it should
-immediately show when you enter pressed state, then
-we need a global flag to indicate that the button
-press expired for that particular button when the
-HELDDOWN state is entered for that IOIndex
 
 
