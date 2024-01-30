@@ -4,9 +4,9 @@
 #include "gpio_index.h"
 #include "division_mode.h"
 
-constexpr uint16_t INIT_DIV_STEPS = 0b0000000000000001;
-constexpr uint8_t INIT_DIV_END_STEPS = 2;
-constexpr uint8_t INIT_INDEX_STEPS = 0;
+#define INIT_DIV_STEPS 0b0000000000000001
+#define INIT_DIV_END_STEPS 2
+#define INIT_INDEX_STEPS 0
 
 struct DivisionState {
     uint16_t steps; // 1️⃣0️⃣a base 2 16-bit integer that represents a pattern of triggers. applies to ALL modes

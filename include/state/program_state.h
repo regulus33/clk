@@ -7,11 +7,11 @@
 #include "button_state.h"
 
 // pin-numbers for divs
-constexpr uint8_t DIV1_PIN = 8;
-constexpr uint8_t DIV2_PIN = 9;
-constexpr uint8_t DIV3_PIN = 10;
-constexpr uint8_t DIV4_PIN = 11;
-constexpr uint8_t MAX_DIVIDERS = 4;
+#define DIV1_PIN 8
+#define DIV2_PIN 9
+#define DIV3_PIN 10
+#define DIV4_PIN 11
+#define MAX_DIVIDERS 4
 //
 class ProgramState {
 private:

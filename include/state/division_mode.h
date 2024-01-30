@@ -5,7 +5,6 @@
 #ifndef CLK_DIVISION_MODE_H
 #define CLK_DIVISION_MODE_H
 enum DivisionMode {
-    Divider,
-    BinaryNumber
+    Divider
 };
 #endif //CLK_DIVISION_MODE_H

@@ -8,7 +8,7 @@ constexpr uint16_t LAST_ADC_VALUE = 120;
 // Service used only for reading digital from analogue knob on the device. it is used for BPM and possibly will expand.
 class KnobService {
 public:
-    // Setup the sort of memoization  of the adc value. We don't consider
+    // Setup the sort of memoization  of the adc value.
     static void setup() {
         initAdc();
         last_adc_value = LAST_ADC_VALUE;
