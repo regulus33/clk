@@ -9,142 +9,163 @@
 #include "gpio_index.h"
 #include "clock_mode.h"
 #include "division_mode.h"
+#include "config.h"
 
-// pressed state
+// pressed state. 0 is pushed down (broken circuit)
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
-constexpr unsigned long DEBOUNCE_DELAY = 50;
-constexpr unsigned long HOLD_DELAY = 1000;
 
+// type definitions for callback function pointers
+// this is actually not used right now we should delete TODO DELETE
 typedef void (*DivisionModeChangeCallback)(DivisionMode, GPIOIndex);
 
+// change the division amount
 typedef void (*DivisionChangeCallback)(GPIOIndex, uint8_t);
 
+// TODO will be used when external clock mode is available
 typedef void (*ClockModeChangeCallback)(ClockMode);
 
+// Button state, its supposed to just be state but its more than that bc of the state machine...
 struct ButtonState {
     // physical button mapping
     GPIOIndex ioIndex;
-    // states
-    enum class State { Released, DebouncePress, Pressed, HeldDown, DebounceRelease };
+    // states for state machine
+    enum class State {
+        Released, DebouncePress, Pressed, HeldDown, DebounceRelease
+    };
     // initial state
     State state = State::Released;
 
-    // when we "debounce" the goal is to make sure that when a state is entered it more or less stays that way.
-    unsigned long lastDebounceTime;
-    const unsigned long debounceDelay = DEBOUNCE_DELAY;
-    unsigned long lastHoldTime{};
+    // track last debounce time, so we can substract it from millis()
+    unsigned long lastStateChangeTimeMillis;
+    // same as lastStateChangeTimeMillis except applies to HeldDown instead of Pressed / Released
+    unsigned long lastHoldTimeMillis;
+    // configurable!
     const unsigned long holdDelay = HOLD_DELAY;
+    // IMPORTANT! this flag is used to cancel the current operation, if you hold a button down and don't release
+    // we don't do anything, so you can read the screen (pressing a button shows the division state for that
+    // button -> output mechanism)
     uint8_t heldDownWasPressed = false;
 
-//    uint8_t startupFlagFlipped = false;
-
-    DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
+    // TODO? pertains to ClockModeChangeCallback
+    uint8_t startupFlagFlipped = false;
+    DivisionModeChangeCallback divisionModeChangeCallback = nullptr;// TODO
     DivisionChangeCallback divisionChangeCallback = nullptr;
-    ClockModeChangeCallback clockModeChangeCallback = nullptr;
-    // Held down, operation cancelled 🚫👇
-    // 🤡 mock millis() so we can test state machine
+    ClockModeChangeCallback clockModeChangeCallback = nullptr; // TODO
+
+    // mock millis() so we can test state machinem we change the value of this in tests.cpp
 #ifdef TEST_BUILD
     unsigned long mockMillis = 0;
-#endif
+#endif // TEST_BUILD
 
     unsigned long mMillis() {
 #ifdef TEST_BUILD
         return mockMillis;
 #else
         return millis();
-#endif
+#endif // TEST_BUILD
     }
 
-    void getNextStateFromReleased(uint8_t pinValue) {
-        if (pinValue == PRESSED) {
-            state = State::DebouncePress;
-            lastDebounceTime = mMillis();
-            DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::DebouncePress]");
-        }
+//    just print to screen div for current button
+    void printCurrentDivisionData() const {
+        divisionChangeCallback(ioIndex, false);
     }
 
-    void getNextStateFromDebouncePressed(uint8_t pinValue) {
-        if ((mMillis() - lastDebounceTime) > debounceDelay) {
-            if (pinValue == PRESSED) {
-                state = State::Pressed;
-                heldDownWasPressed = false;
-                lastHoldTime = mMillis();
-                divisionChangeCallback(ioIndex, false);
-                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
-            } else {
-                // this transition does not represent an action, it is just to return to default nothing state
-                state = State::Released;
-            }
-        }
+    // start counting how long we've been in current state
+    void startDebounceTimer() {
+        lastStateChangeTimeMillis = mMillis();
     }
 
-    void getNextStateFromPressed(uint8_t pinValue) {
-        if (pinValue == RELEASED) {
-            state = State::DebounceRelease;
-            lastDebounceTime = mMillis();
-            DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-        } else {
-            if (mMillis() - lastHoldTime > holdDelay) {
-                state = State::HeldDown;
-                heldDownWasPressed = true;
-                DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::HeldDown]");
-            }
-        }
+    // start counting how long its been since we first held down button
+    void startHoldTimer() {
+        lastHoldTimeMillis = mMillis();
     }
 
-    void getNextStateFromDebounceRelease(uint8_t pinValue) {
-        if ((mMillis() - lastDebounceTime) > debounceDelay) {
-            if (pinValue == RELEASED) {
-                state = State::Released;
-                DEBUG_PRINT("[CALLBACK][ABOUT_TO_CALL]divisionChangeCallback] - ioIndex");
-                DEBUG_PRINTLN_VAR(ioIndex);
-                if(!heldDownWasPressed) {
-                    divisionChangeCallback(ioIndex, true);
-                } else {
-                    DEBUG_PRINT("[BUTTON][STATE_CHANGE][HELD_DOWN_WAS_PRESSED] - SKIPPING ACTION!");
-                }
-
-                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Released]");
-            } else {
-                state = State::Pressed;
-                heldDownWasPressed = false;
-                lastHoldTime = mMillis();
-                DEBUG_PRINT("[BUTTON][STATE_CHANGE][State::Pressed]");
-            }
-        }
+    // check if we've been in whatever state we are in long enough to consider ourselves actuallin in that state
+    bool debounceTimerTimedOut() {
+        unsigned long totalMillisInNewState = mMillis() - lastStateChangeTimeMillis;
+        return totalMillisInNewState > DEBOUNCE_DELAY;
     }
 
-    void getNextStateFromHeldDown(uint8_t pinValue) {
-        if (pinValue == RELEASED) {
-            state = State::DebounceRelease;
-            lastDebounceTime = mMillis();
-            DEBUG_PRINTLN("[BUTTON][STATE_CHANGE][State::DebounceRelease]");
-//TODO
-//                    if (!startupFlagFlipped && ioIndex == GPIOIndex::ONE) {
-//                        clockModeChangeCallback(ClockMode::External);
-//                    }
-        }
+    // check if user held down button for long enough
+    bool holdTimerTimedOut() {
+        unsigned long totalMillisSinceFirstHeldDown = mMillis() - lastHoldTimeMillis;
+        return totalMillisSinceFirstHeldDown > holdDelay;
     }
+
+    // flip on the flag that disables division increment
+    void considerHeldDown() {
+        heldDownWasPressed = true;
+    }
+
+    // flip off the flag that disables division increment
+    void considerNotHeldDown() {
+        heldDownWasPressed = false;
+    }
+
+    void exitStateMachine() {
+        state = State::Released;
+    }
+
+    void enterPressedState() {
+        state = State::Pressed;
+        startHoldTimer();
+        considerNotHeldDown();
+        printCurrentDivisionData();
+    }
+
 
     ButtonState(GPIOIndex ioIndex) : ioIndex(ioIndex) {}
 
     void updateState(uint8_t pinValue) {
         switch (state) {
             case State::Released:
-                getNextStateFromReleased(pinValue);
+                if (pinValue == PRESSED) {
+                    state = State::DebouncePress;
+                    startDebounceTimer();
+                }
                 break;
             case State::DebouncePress:
-                getNextStateFromDebouncePressed(pinValue);
+                if (debounceTimerTimedOut()) {
+                    if (pinValue == PRESSED) {
+                        enterPressedState();
+                    } else {
+                        exitStateMachine();
+                    }
+                }
                 break;
             case State::Pressed:
-                getNextStateFromPressed(pinValue);
+                if (pinValue == RELEASED) {
+                    state = State::DebounceRelease;
+                    startDebounceTimer();
+                } else {
+                    if (holdTimerTimedOut()) {
+                        state = State::HeldDown;
+                        considerHeldDown();
+                    }
+                }
                 break;
             case State::HeldDown:
-                getNextStateFromHeldDown(pinValue);
+                if (pinValue == RELEASED) {
+                    state = State::DebounceRelease;
+                    startDebounceTimer();
+                    if (!startupFlagFlipped && ioIndex == GPIOIndex::ONE) {
+                        // TODO
+                        clockModeChangeCallback(ClockMode::External);
+                    }
+                }
                 break;
             case State::DebounceRelease:
-                getNextStateFromDebounceRelease(pinValue);
+                if (debounceTimerTimedOut()) {
+                    if (pinValue == RELEASED) {
+                        state = State::Released;
+                        if (!heldDownWasPressed) {
+                            divisionChangeCallback(ioIndex, true);
+                        }
+                    } else {
+                        enterPressedState();
+                    }
+                }
                 break;
         }
     }
