@@ -39,11 +39,11 @@ public:
         switch (pin) {
             case BUTTON1:
                 return (MY_PIND & B00010000) >> BUTTON1;
-            case 5:
+            case BUTTON2:
                 return (MY_PIND & B00100000) >>  BUTTON2;
-            case 6:
+            case BUTTON3:
                 return (MY_PIND & B01000000) >> BUTTON3;
-            case 7:
+            case BUTTON4:
                 return (MY_PIND & B10000000) >> BUTTON4;
             default:
                 DEBUG_PRINT("[BUTTON_SERVICE][READ_PIN] - unknown pin value");
