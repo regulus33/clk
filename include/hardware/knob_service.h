@@ -5,8 +5,10 @@ constexpr uint16_t LAST_ADC_VALUE = 120;
 #include <Arduino.h>
 #include "development/debug_utils.h"
 
+// Service used only for reading digital from analogue knob on the device. it is used for BPM and possibly will expand.
 class KnobService {
 public:
+    // Setup the sort of memoization  of the adc value. We don't consider
     static void setup() {
         initAdc();
         last_adc_value = LAST_ADC_VALUE;

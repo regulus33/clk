@@ -333,39 +333,21 @@ void test_sm_held_down_state_does_not_call_division_change_callback() {
     TEST_ASSERT_NOT_EQUAL(state.lastCallbackCalled, Callback::DivisionChange);
 }
 
-///////////////////////
-
 void test_display_service_get_format_for_BMP_With_Default_GPIO_Index() {
-    // Since getFormat is a private function, let's test it using public function buildPrintString which uses getFormat internally.
-    // Let's prepare needed variables
     char buffer[17];
-
-    // Call buildPrintString and indirectly test getFormat
     DisplayService::buildPrintString(PrintType::BPM, 120, buffer);
-
-    // Now buffer should contain a formatted string. Let's check it
     TEST_ASSERT_EQUAL_STRING("BPM: 120", buffer);
 }
 
 void test_display_service_get_format_for_Div_With_GPIO_Index_One() {
-    // Let's prepare needed variables
     char buffer[17];
-
-    // Call buildPrintString and indirectly test getFormat
     DisplayService::buildPrintString(PrintType::Div, 2, buffer, GPIOIndex::ONE);
-
-    // Now buffer should contain a formatted string. Let's check it
     TEST_ASSERT_EQUAL_STRING("Div1 002", buffer);
 }
 
 void test_display_service_get_format_for_Rhythm_With_Default_GPIO_Index() {
-    // Let's prepare needed variables
     char buffer[17];
-
-    // Call buildPrintString and indirectly test getFormat
     DisplayService::buildPrintString(PrintType::Rhythm, 10, buffer);
-
-    // Now buffer should contain a formatted string. Let's check it
     TEST_ASSERT_EQUAL_STRING("BIT: 010", buffer);
 }
 

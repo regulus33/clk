@@ -35,7 +35,7 @@ void divisionChangeCallback(GPIOIndex ioIndex, uint8_t incrementEndOfSteps) {
     }
 
     // print the above mentioned string
-    DisplayService::printLine(divisionPrint, PrintType::Div, ioIndex);
+    DisplayService::updateOled(divisionPrint, PrintType::Div, ioIndex);
 }
 
 // TODO NOT IMPLEMENTED
@@ -112,7 +112,7 @@ void loop() {
         // insert that interval
         TimerManager::updateTimer1Interval(timer_interval);
         // print the change to the output
-        DisplayService::printLine(state.getBpm(), BPM);
+        DisplayService::updateOled(state.getBpm(), BPM);
     }
     // get button read pin value and pass it to the state machine in ButtonState
     state.buttonStateAtIndex(GPIOIndex::ONE).updateState(ButtonService::readPin(7));

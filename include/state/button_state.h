@@ -10,6 +10,7 @@
 #include "clock_mode.h"
 #include "division_mode.h"
 
+// pressed state
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
 constexpr unsigned long DEBOUNCE_DELAY = 50;
