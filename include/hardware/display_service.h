@@ -5,6 +5,8 @@
 #include "U8x8lib.h"
 #include <Wire.h>
 
+// TODO: no tests!
+// Static "strings" used to print to the screen info about what division the device is in
 constexpr const char *divStrings[4] = {
         "Div1 %03d",
         "Div2 %03d",
@@ -12,19 +14,23 @@ constexpr const char *divStrings[4] = {
         "Div4 %03d"
 };
 
+// Different types of print prefixes.
 enum PrintType {
     BPM,
     Div,
     Rhythm,
 };
 
+// All functions that give us the ability to interact with the SSD1306 that this project requires.
 class DisplayService {
 private:
+    // create an instance of the OLED's driver
     static U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;  // Static OLED object
 
+    // baed on print type and GPIO index return the template string...
     static const char *getFormat(PrintType print_type, GPIOIndex index = GPIOIndex::ONE) {
         switch (print_type) {
-// Think of these a bit like the arguments to strftime in ruby
+            // Think of these a bit like the arguments to strftime in ruby
             case BPM:
                 return "BPM: %03d";
             case Div:
@@ -36,6 +42,7 @@ private:
         }
     }
 
+    //
     static const char *getDividerFormatString(GPIOIndex index) {
         return divStrings[index];
     }

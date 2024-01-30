@@ -9,6 +9,8 @@
 #include "development/mock_pind.h"
 #include "hardware/button_service.h"
 #include "state/division_state.h"
+#include "hardware/display_service.h"
+
 
 // How to write new tests 📝
 // 1. try to create a helper method with aCamelCaseName() that sets up the class instance and mocks data if needed
@@ -328,11 +330,43 @@ void test_sm_held_down_state_does_not_call_division_change_callback() {
     pressButton(buttonState);
     commitButtonPress(buttonState);
     holdButtonPress(buttonState);
-
-
-
-
     TEST_ASSERT_NOT_EQUAL(state.lastCallbackCalled, Callback::DivisionChange);
+}
+
+///////////////////////
+
+void test_display_service_get_format_for_BMP_With_Default_GPIO_Index() {
+    // Since getFormat is a private function, let's test it using public function buildPrintString which uses getFormat internally.
+    // Let's prepare needed variables
+    char buffer[17];
+
+    // Call buildPrintString and indirectly test getFormat
+    DisplayService::buildPrintString(PrintType::BPM, 120, buffer);
+
+    // Now buffer should contain a formatted string. Let's check it
+    TEST_ASSERT_EQUAL_STRING("BPM: 120", buffer);
+}
+
+void test_display_service_get_format_for_Div_With_GPIO_Index_One() {
+    // Let's prepare needed variables
+    char buffer[17];
+
+    // Call buildPrintString and indirectly test getFormat
+    DisplayService::buildPrintString(PrintType::Div, 2, buffer, GPIOIndex::ONE);
+
+    // Now buffer should contain a formatted string. Let's check it
+    TEST_ASSERT_EQUAL_STRING("Div1 002", buffer);
+}
+
+void test_display_service_get_format_for_Rhythm_With_Default_GPIO_Index() {
+    // Let's prepare needed variables
+    char buffer[17];
+
+    // Call buildPrintString and indirectly test getFormat
+    DisplayService::buildPrintString(PrintType::Rhythm, 10, buffer);
+
+    // Now buffer should contain a formatted string. Let's check it
+    TEST_ASSERT_EQUAL_STRING("BIT: 010", buffer);
 }
 
 int runUnityTests(void) {
@@ -366,8 +400,12 @@ int runUnityTests(void) {
 
     // Callbacks
     RUN_TEST(test_sm_calls_division_change_callback);
-
     RUN_TEST(test_sm_held_down_state_does_not_call_division_change_callback);
+
+    // DisplayService
+    RUN_TEST(test_display_service_get_format_for_BMP_With_Default_GPIO_Index);
+    RUN_TEST(test_display_service_get_format_for_Div_With_GPIO_Index_One);
+    RUN_TEST(test_display_service_get_format_for_Rhythm_With_Default_GPIO_Index);
 
     UNITY_END();
     return 1;
