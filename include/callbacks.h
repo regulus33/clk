@@ -18,7 +18,7 @@ typedef void (*DivisionModeChangeCallback)(DivisionMode, GPIOIndex);
 typedef void (*DivisionChangeCallback)(GPIOIndex, uint8_t);
 typedef void (*ClockModeChangeCallback)(ClockMode);
 typedef void (*PulseChangeCallback)();
-typedef void (*WriteToPortStub(GPIOIndex));
+typedef void (*WriteToPortStub)(GPIOIndex);
 
 #endif // CALLBACKS_H
 

@@ -13,13 +13,13 @@
 #include "timer_manager.h"
 #include "hardware/display_service.h"
 #include "hardware/button_service.h"
+#include "hardware/knob_service.h"
 #include "state/program_state.h"
 #include "state/division_mode.h"
 #include "config.h"
 #include "callbacks.h"
 
 #define INITIAL_INTERVAL 1000
-
 
 class ClockDivider {
 private:
@@ -29,11 +29,7 @@ private:
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
 public:
-#ifdef TEST_BUILD
-    // FOR testing, simply do clockDivider.writeToPortStub = myFunctionPointer
-    // it calls the function with arg GPIOIndex of the division state it is positivly pulsing
     WriteToPortStub writeToPortStub = nullptr;
-#endif
 
     ProgramState &getState() const { return state; }
 
@@ -50,10 +46,8 @@ public:
         clockModeChangeCallback(initialClockModeChangeCallback) {}
 
     void setup() {
-        state.setButtonTriggeredCallbacks(
-                divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
+        state.setButtonTriggeredCallbacks(divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
     }
-
 
     void pulseGpioPin(uint8_t registerLocation, GPIOIndex gpioIndex) {
         // get the divider state based on the IoIndex
@@ -69,9 +63,8 @@ public:
         }
     }
 
-
 // clear the bits in the portB register 00000000
-    void clearBits() {
+    static void clearBits() {
         PORTB &= ~((1 << PORTB0) | (1 << PORTB1) | (1 << PORTB2) | (1 << PORTB3));
     }
 
@@ -92,9 +85,13 @@ public:
 
         // take the adc value (usually something between 0 and ~1000 and map it ot bpm
         // then set that bpm as the bpm for program state
+#ifdef TEST_BUILD
+
+#else
         state.setBpm(TimerManager::convertAdcReadToBpm(
                 KnobService::getValue())
         );
+#endif
 
         // if bpm has changed update the timer to match the bpm
         if (state.bpmChanged()) {
@@ -108,6 +105,7 @@ public:
             // print the change to the output
             DisplayService::updateOled(state.getBpm(), BPM);
         }
+
         // get button read pin value and pass it to the state machine in ButtonState
         state.buttonStateAtIndex(GPIOIndex::ONE).updateState(ButtonService::readPin(7));
         state.buttonStateAtIndex(GPIOIndex::TWO).updateState(ButtonService::readPin(6));
