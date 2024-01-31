@@ -33,26 +33,25 @@ private:
 
 public:
     // Getters
-    ProgramState getState() const { return state; }
-    DivisionChangeCallback getDivisionChangeCallback() const { return divisionChangeCallback; }
-    PulseChangeCallback getPulseChangeCallback() const { return pulseChangeCallback; }
-    DivisionModeChangeCallback getDivisionModeChangeCallback() const { return divisionModeChangeCallback; }
-    ClockModeChangeCallback getClockModeChangeCallback() const { return clockModeChangeCallback; }
+    ProgramState& getState() const { return state; }
+    DivisionChangeCallback& getDivisionChangeCallback() const { return divisionChangeCallback; }
+    PulseChangeCallback& getPulseChangeCallback() const { return pulseChangeCallback; }
+    DivisionModeChangeCallback& getDivisionModeChangeCallback() const { return divisionModeChangeCallback; }
+    ClockModeChangeCallback& getClockModeChangeCallback() const { return clockModeChangeCallback; }
 
     // Setters
-    void setState(const ProgramState& newState) { state = newState; }
-    void setDivisionChangeCallback(const DivisionChangeCallback& newCallback) { divisionChangeCallback = newCallback; }
-    void setPulseChangeCallback(const PulseChangeCallback& newCallback) { pulseChangeCallback = newCallback; }
-    void setDivisionModeChangeCallback(const DivisionModeChangeCallback& newCallback) { divisionModeChangeCallback = newCallback; }
-    void setClockModeChangeCallback(const ClockModeChangeCallback& newCallback) { clockModeChangeCallback = newCallback; }
+    void setDivisionChangeCallback(DivisionChangeCallback& newCallback) { divisionChangeCallback = newCallback; }
+    void setPulseChangeCallback(PulseChangeCallback& newCallback) { pulseChangeCallback = newCallback; }
+    void setDivisionModeChangeCallback(DivisionModeChangeCallback& newCallback) { divisionModeChangeCallback = newCallback; }
+    void setClockModeChangeCallback(ClockModeChangeCallback& newCallback) { clockModeChangeCallback = newCallback; }
 
     // Constructor
     ClockDivider(
-            const ProgramState& initialState,
-            const DivisionChangeCallback& initialDivisionChangeCallback,
-            const PulseChangeCallback& initialPulseChangeCallback,
-            const DivisionModeChangeCallback& initialDivisionModeChangeCallback,
-            const ClockModeChangeCallback& initialClockModeChangeCallback
+             ProgramState& initialState,
+             DivisionChangeCallback& initialDivisionChangeCallback,
+             PulseChangeCallback& initialPulseChangeCallback,
+             DivisionModeChangeCallback& initialDivisionModeChangeCallback,
+             ClockModeChangeCallback& initialClockModeChangeCallback
     ) : state(initialState),
         divisionChangeCallback(initialDivisionChangeCallback),
         pulseChangeCallback(initialPulseChangeCallback),
