@@ -43,6 +43,11 @@ ClockDivider clockDivider(
         clockModeChangeCallback
 );
 
+bool userEnabledExtClock() {
+    // this means button 1 is pressed
+    return !ButtonService::readPin(7);
+}
+
 void setup() {
     // sets up some logging stuff if building with debug flags
     DEBUG_SETUP;
@@ -53,7 +58,7 @@ void setup() {
     // Setup pin inputs
     ButtonService::setup();
 
-    if(!ButtonService::readPin(7)) {
+    if(userEnabledExtClock()) {
         DisplayService::drawCharBuffer("x clk on");
         delay(3000);
     } else {
