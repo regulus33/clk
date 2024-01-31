@@ -9,7 +9,8 @@
 #include "clock_divider.h"
 
 #define INITIAL_INTERVAL 1000
-
+#define CLOCK_BTN_PIN 7
+#define CLOCK_BTN_CONFIRMATION "x clk on"
 // Initialize container for all our program state
 ProgramState state;
 
@@ -45,7 +46,7 @@ ClockDivider clockDivider(
 
 bool userEnabledExtClock() {
     // this means button 1 is pressed
-    return !ButtonService::readPin(7);
+    return !ButtonService::readPin(CLOCK_BTN_PIN);
 }
 
 void setup() {
@@ -59,13 +60,12 @@ void setup() {
     ButtonService::setup();
 
     if(userEnabledExtClock()) {
-        DisplayService::drawCharBuffer("x clk on");
+        DisplayService::drawCharBuffer(CLOCK_BTN_CONFIRMATION);
         delay(3000);
     } else {
         // Attach our callback / ISR to the Timer1 library's timer1 service.
         // It will call this function on each clock cycle
         TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
-
     }
 
     // set up the pins toward which the OUTPUTS of the program will funnel
