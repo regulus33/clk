@@ -58,12 +58,7 @@ public:
         pulseChangeCallback(initialPulseChangeCallback),
         divisionModeChangeCallback(initialDivisionModeChangeCallback),
         clockModeChangeCallback(initialClockModeChangeCallback)
-    {
-        // You could call setup here if necessary
-    }
-
-    // Rest of the code...
-
+    {}
 };
 
 #endif //CLOCK_DIVIDER
