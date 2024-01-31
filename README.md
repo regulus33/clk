@@ -1,3 +1,11 @@
+# TODO
+1. create a new class that manages the main loop
+2. create tests that tests all functionality of this main loop
+3. create a parent state machine who is referenced by all buttons who declare their current state during transitions. the parent state machine's tasks are:
+4. change clock mode
+5. turn off screen
+6. implement a system to advance clock based on external interrupt...
+
 # How it works
 
 Terms:

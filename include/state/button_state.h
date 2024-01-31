@@ -10,22 +10,13 @@
 #include "clock_mode.h"
 #include "division_mode.h"
 #include "config.h"
+#include "callbacks.h"
 
 // pressed state. 0 is pushed down (broken circuit)
 constexpr uint8_t PRESSED = 0;
 constexpr uint8_t RELEASED = 1;
 
-// type definitions for callback function pointers
-// this is actually not used right now we should delete TODO DELETE
-typedef void (*DivisionModeChangeCallback)(DivisionMode, GPIOIndex);
-
-// change the division amount
-typedef void (*DivisionChangeCallback)(GPIOIndex, uint8_t);
-
-// TODO will be used when external clock mode is available
-typedef void (*ClockModeChangeCallback)(ClockMode);
-
-// Button state, its supposed to just be state but its more than that bc of the state machine...
+// Button state, it is supposed to just be state it is more than that bc of the state machine...
 struct ButtonState {
     // physical button mapping
     GPIOIndex ioIndex;
@@ -113,7 +104,6 @@ struct ButtonState {
         considerNotHeldDown();
         printCurrentDivisionData();
     }
-
 
     ButtonState(GPIOIndex ioIndex) : ioIndex(ioIndex) {}
 
