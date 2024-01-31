@@ -25,11 +25,11 @@
 
 class ClockDivider {
 private:
-    ProgramState state;
-    DivisionChangeCallback divisionChangeCallback;
-    PulseChangeCallback pulseChangeCallback;
-    DivisionModeChangeCallback divisionModeChangeCallback;
-    ClockModeChangeCallback clockModeChangeCallback;
+    ProgramState& state;
+    DivisionChangeCallback& divisionChangeCallback;
+    PulseChangeCallback& pulseChangeCallback;
+    DivisionModeChangeCallback& divisionModeChangeCallback;
+    ClockModeChangeCallback& clockModeChangeCallback;
 
 public:
     // Getters
