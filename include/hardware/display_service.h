@@ -72,6 +72,10 @@ public:
         buildPrintString(print_type, value, char_buffer, index);
         u8x8.draw2x2String(0, 3, char_buffer);
     }
+
+    static void drawCharBuffer(char* char_buffer) {
+        u8x8.draw2x2String(0, 3, char_buffer);
+    }
 };
 
 U8X8_SSD1306_128X64_NONAME_HW_I2C DisplayService::u8x8 = U8X8_SSD1306_128X64_NONAME_HW_I2C();  // Initialize static OLED object

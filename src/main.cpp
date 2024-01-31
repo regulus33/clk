@@ -52,15 +52,24 @@ void setup() {
     KnobService::setup();
     // Setup pin inputs
     ButtonService::setup();
-    // Attach our callback / ISR to the Timer1 library's timer1 service.
-    // It will call this function on each clock cycle
-    TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
+
+    if(!ButtonService::readPin(7)) {
+        DisplayService::drawCharBuffer("x clk on");
+        delay(3000);
+    } else {
+        // Attach our callback / ISR to the Timer1 library's timer1 service.
+        // It will call this function on each clock cycle
+        TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
+
+    }
+
     // set up the pins toward which the OUTPUTS of the program will funnel
     DivisionService::setup();
     // connects callbacks
     clockDivider.setup();
     // Print out how much memory we've used after all this setup process (if in debug mode)
     DEBUG_MEMPRINT;
+
 
 }
 
