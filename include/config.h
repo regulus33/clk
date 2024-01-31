@@ -4,5 +4,5 @@
 // Button debounce delay (50 seems like a lot right now)
 #define DEBOUNCE_DELAY 50
 #define HOLD_DELAY 1000
-
+#define EXT_CLOCK_MSG_TIME 1000
 #define TEST_KNOB_ADC 300
