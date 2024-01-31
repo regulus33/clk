@@ -20,31 +20,24 @@
 
 #define INITIAL_INTERVAL 1000
 
-#ifndef CLOCK_DIVIDER
-#define CLOCK_DIVIDER
 
 class ClockDivider {
 private:
     ProgramState& state;
-    DivisionChangeCallback& divisionChangeCallback;
-    PulseChangeCallback& pulseChangeCallback;
-    DivisionModeChangeCallback& divisionModeChangeCallback;
-    ClockModeChangeCallback& clockModeChangeCallback;
+    DivisionChangeCallback divisionChangeCallback = nullptr;
+    PulseChangeCallback pulseChangeCallback = nullptr;
+    DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
+    ClockModeChangeCallback clockModeChangeCallback = nullptr;
 
 public:
     ProgramState& getState() const { return state; }
-    DivisionChangeCallback& getDivisionChangeCallback() const { return divisionChangeCallback; }
-    PulseChangeCallback& getPulseChangeCallback() const { return pulseChangeCallback; }
-    DivisionModeChangeCallback& getDivisionModeChangeCallback() const { return divisionModeChangeCallback; }
-    ClockModeChangeCallback& getClockModeChangeCallback() const { return clockModeChangeCallback; }
 
-    // Constructor
     ClockDivider(
-             ProgramState& initialState,
-             DivisionChangeCallback& initialDivisionChangeCallback,
-             PulseChangeCallback& initialPulseChangeCallback,
-             DivisionModeChangeCallback& initialDivisionModeChangeCallback,
-             ClockModeChangeCallback& initialClockModeChangeCallback
+            ProgramState& initialState,
+            void(*initialDivisionChangeCallback)(GPIOIndex, uint8_t),
+            void(*initialPulseChangeCallback)(),
+            void(*initialDivisionModeChangeCallback)(DivisionMode, GPIOIndex),
+            void(*initialClockModeChangeCallback)(ClockMode)
     ) : state(initialState),
         divisionChangeCallback(initialDivisionChangeCallback),
         pulseChangeCallback(initialPulseChangeCallback),
@@ -53,25 +46,8 @@ public:
     {}
 
     void setup() {
-        // sets up some logging stuff if building with debug flags
-        DEBUG_SETUP;
-        // sets up pins and I2C stuff for the display
-        DisplayService::setup();
-        // sets up or own adc logic for faster reads (no HAL used)
-        KnobService::setup();
-        // Setup pin inputs
-        ButtonService::setup();
-        // Attach our callback / ISR to the Timer1 library's timer1 service. It will call this function on each clock cycle
-        TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
-        // set up the pins toward which the OUTPUTS of the program will funnel
-        DivisionService::setup();
-        // set the initial bpm of the internal clocking mechanism
-        state.setBpm(120);
-        // set up the callbacks that should be connected to our buttons' state machines. Each button has a state machine
-        // that will call these functions at certain key state transition points.
-        state.setButtonTriggeredCallbacks(divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
-        // Print out how much memory we've used after all this setup process (if in debug mode)
-        DEBUG_MEMPRINT;
+        state.setButtonTriggeredCallbacks(
+                divisionModeChangeCallback, divisionChangeCallback, clockModeChangeCallback);
     }
 
 
@@ -109,7 +85,6 @@ public:
         // take the adc value (usually something between 0 and ~1000 and map it ot bpm
         // then set that bpm as the bpm for program state
         state.setBpm(TimerManager::convertAdcReadToBpm(
-
                 KnobService::getValue())
         );
 
@@ -133,6 +108,5 @@ public:
     }
 };
 
-#endif //CLOCK_DIVIDER
 
 #endif //CLK_CLOCK_DIVIDER_H
