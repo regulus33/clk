@@ -23,17 +23,22 @@
 
 class ClockDivider {
 private:
-    ProgramState& state;
+    ProgramState &state;
     DivisionChangeCallback divisionChangeCallback = nullptr;
     PulseChangeCallback pulseChangeCallback = nullptr;
     DivisionModeChangeCallback divisionModeChangeCallback = nullptr;
     ClockModeChangeCallback clockModeChangeCallback = nullptr;
-
 public:
-    ProgramState& getState() const { return state; }
+#ifdef TEST_BUILD
+    // FOR testing, simply do clockDivider.writeToPortStub = myFunctionPointer
+    // it calls the function with arg GPIOIndex of the division state it is positivly pulsing
+    WriteToPortStub writeToPortStub = nullptr;
+#endif
+
+    ProgramState &getState() const { return state; }
 
     ClockDivider(
-            ProgramState& initialState,
+            ProgramState &initialState,
             void(*initialDivisionChangeCallback)(GPIOIndex, uint8_t),
             void(*initialPulseChangeCallback)(),
             void(*initialDivisionModeChangeCallback)(DivisionMode, GPIOIndex),
@@ -42,8 +47,7 @@ public:
         divisionChangeCallback(initialDivisionChangeCallback),
         pulseChangeCallback(initialPulseChangeCallback),
         divisionModeChangeCallback(initialDivisionModeChangeCallback),
-        clockModeChangeCallback(initialClockModeChangeCallback)
-    {}
+        clockModeChangeCallback(initialClockModeChangeCallback) {}
 
     void setup() {
         state.setButtonTriggeredCallbacks(
@@ -57,7 +61,11 @@ public:
         // if the return value of tick is TRUE
         // make the PORTB bit associated with the pin this DivisionState is focused on 1
         if (DivisionService::tick(state.divisionStateAtIndex(gpioIndex))) {
+#ifdef TEST_BUILD
+            writeToPortStub(gpioIndex);
+#else
             PORTB |= (1 << registerLocation);
+#endif // TEST_BUILD
         }
     }
 
