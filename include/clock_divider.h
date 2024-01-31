@@ -32,18 +32,11 @@ private:
     ClockModeChangeCallback& clockModeChangeCallback;
 
 public:
-    // Getters
     ProgramState& getState() const { return state; }
     DivisionChangeCallback& getDivisionChangeCallback() const { return divisionChangeCallback; }
     PulseChangeCallback& getPulseChangeCallback() const { return pulseChangeCallback; }
     DivisionModeChangeCallback& getDivisionModeChangeCallback() const { return divisionModeChangeCallback; }
     ClockModeChangeCallback& getClockModeChangeCallback() const { return clockModeChangeCallback; }
-
-    // Setters
-    void setDivisionChangeCallback(DivisionChangeCallback& newCallback) { divisionChangeCallback = newCallback; }
-    void setPulseChangeCallback(PulseChangeCallback& newCallback) { pulseChangeCallback = newCallback; }
-    void setDivisionModeChangeCallback(DivisionModeChangeCallback& newCallback) { divisionModeChangeCallback = newCallback; }
-    void setClockModeChangeCallback(ClockModeChangeCallback& newCallback) { clockModeChangeCallback = newCallback; }
 
     // Constructor
     ClockDivider(
