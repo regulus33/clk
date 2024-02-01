@@ -1,7 +1,7 @@
 # CLK
 ### Arduino based eurorack clock source, dynamic clock divider and midi clock source. 
 
-![Alternative Text](module.jpg)
+![module](module.jpg)
 
 # How to Build and Run
 
@@ -21,7 +21,6 @@ Build and upload for production:
 ### Various Diagrams and Definitions
 
 # Visual Overview
-![Alternative Text](Image_Path.jpg)
 ```mermaid
 stateDiagram-v2
     [*] --> Released
