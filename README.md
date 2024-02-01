@@ -1,22 +1,27 @@
-# TODO
-1. create a new class that manages the main loop
-2. create tests that tests all functionality of this main loop
-3. create a parent state machine who is referenced by all buttons who declare their current state during transitions. the parent state machine's tasks are:
-4. change clock mode
-5. turn off screen
-6. implement a system to advance clock based on external interrupt...
+# CLK
+### Arduino based eurorack clock source, dynamic clock divider and midi clock source. 
 
-# How it works
+![Alternative Text](module.jpg)
 
-Terms:
+# How to Build and Run
 
+### Dev
+Run with logger:
 
-**Divider** - A physical pin / output jack that pulses out +5v and 0v at a rate which is 1/n of the master clock where n
-is the Divider's 
+`pio run --environment dev -t upload && pio device monitor -b 9600`
+
+Run tests:
+
+`pio test --environment test`
+
+Build and upload for production:
+
+`pio run --environment prod -t upload`
 
 ### Various Diagrams and Definitions
 
 # Visual Overview
+![Alternative Text](Image_Path.jpg)
 ```mermaid
 stateDiagram-v2
     [*] --> Released
