@@ -7,12 +7,10 @@
 #include "state/division_mode.h"
 #include "config.h"
 #include "clock_divider.h"
+#include "setup_configuration_service.h"
 
 #define INITIAL_INTERVAL 1000
-#define CLOCK_BTN_PIN 7
-#define CLOCK_BTN_CONFIRMATION "x clk on"
 #define EXTERNAL_CLOCK_PIN 2  // Use pin 2 for external clock
-// #define EXTERNAL_CLOCK_PIN 3  // Uncomment to use pin 3 instead
 
 // Initialize container for all our program state
 ProgramState state;
@@ -47,10 +45,6 @@ ClockDivider clockDivider(
         clockModeChangeCallback
 );
 
-bool userEnabledExtClock() {
-    // this means button 1 is pressed
-    return !ButtonService::readPin(CLOCK_BTN_PIN);
-}
 
 void setup() {
     // sets up some logging stuff if building with debug flags
@@ -61,16 +55,26 @@ void setup() {
     KnobService::setup();
     // Setup pin inputs
     ButtonService::setup();
-    //
-    if(userEnabledExtClock()) {
-        DisplayService::drawCharBuffer(CLOCK_BTN_CONFIRMATION);
+
+    if (SetupConfigurationService::userEnabledExtClock()) {
+        // setup that pin where we accept the interrupt
         pinMode(EXTERNAL_CLOCK_PIN, INPUT);
-        attachInterrupt(digitalPinToInterrupt(EXTERNAL_CLOCK_PIN), pulseChangeCallback, RISING);
+        // attach the interrupt
+        attachInterrupt(digitalPinToInterrupt(EXTERNAL_CLOCK_PIN), pulseChangeCallback, PULSE_ON);
+        // take a second to show the message on the screen.
+        SetupConfigurationService::confirmUserEnabledExtClock();
+
         delay(EXT_CLOCK_MSG_TIME);
     } else {
         // Attach our callback / ISR to the Timer1 library's timer1 service.
         // It will call this function on each clock cycle
         TimerManager::setup(INITIAL_INTERVAL, pulseChangeCallback);
+    }
+
+    if(SetupConfigurationService::userDisabledDisplay()) {
+        SetupConfigurationService::confirmUserDisabledDisplay();
+        delay(DSBL_DSPL_MSG_TIME);
+        DisplayService::disableDisplay();
     }
 
     // set up the pins toward which the OUTPUTS of the program will funnel

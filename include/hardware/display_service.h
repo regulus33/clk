@@ -18,7 +18,7 @@ constexpr const char *divStrings[4] = {
 enum PrintType {
     BPM,
     Div,
-    Rhythm,
+    Rhythm, // only in tests, not really used yet.
 };
 
 // All functions that give us the ability to interact with the SSD1306 that this project requires.
@@ -26,8 +26,9 @@ class DisplayService {
 private:
     // create an instance of the OLED's driver
     static U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8;  // Static OLED object
+    static bool displayEnabled; // this is a user configurable setting turned on when user holds down button2 on powerup
 
-    // baed on print type and GPIO index return the template string...
+    // based on print type and GPIO index return the template string...
     static const char *getFormat(PrintType print_type, GPIOIndex index = GPIOIndex::ONE) {
         switch (print_type) {
             // Think of these a bit like the arguments to strftime in ruby
@@ -68,15 +69,26 @@ public:
     // prints a few dunamic values to the screen, tightly coupled with firmware, not to be used for debugging. very
     // deterministic.
     static void updateOled(uint8_t value, PrintType print_type = BPM, GPIOIndex index = GPIOIndex::ONE) {
-        char char_buffer[17];
-        buildPrintString(print_type, value, char_buffer, index);
-        u8x8.draw2x2String(0, 3, char_buffer);
+        if(displayEnabled) {
+            char char_buffer[17];
+            buildPrintString(print_type, value, char_buffer, index);
+            u8x8.draw2x2String(0, 3, char_buffer);
+        }
+
     }
 
+    // print any "string"
     static void drawCharBuffer(char* char_buffer) {
         u8x8.draw2x2String(0, 3, char_buffer);
     }
+
+    // disable the display (for performance, done on startup)
+    static void disableDisplay() {
+        displayEnabled = false;
+    }
+
 };
 
 U8X8_SSD1306_128X64_NONAME_HW_I2C DisplayService::u8x8 = U8X8_SSD1306_128X64_NONAME_HW_I2C();  // Initialize static OLED object
+bool DisplayService::displayEnabled = true;
 #endif //OLED_DISPLAY_H
